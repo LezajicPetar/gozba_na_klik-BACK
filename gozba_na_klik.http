@@ -1,0 +1,6 @@
+@gozba_na_klik_HostAddress = http://localhost:5194
+
+GET {{gozba_na_klik_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
