@@ -22,6 +22,10 @@ namespace gozba_na_klik.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<User>()
+           .HasIndex(u => u.Username)
+           .IsUnique();
+
             //potencijalno treba povezati i restoran sa worktime
             modelBuilder.Entity<Restaurant>()
                 .HasOne(o => o.Owner)
@@ -56,6 +60,7 @@ namespace gozba_na_klik.Data
                     Id = 1,
                     FirstName = "Admin",
                     LastName = "One",
+                    Username = "Admin1",
                     Email = "admin1@gozba.com",
                     Password = "admin123",
                     Role = Role.Admin
@@ -65,6 +70,7 @@ namespace gozba_na_klik.Data
                     Id = 2,
                     FirstName = "Admin",
                     LastName = "Two",
+                    Username = "Admin2",
                     Email = "admin2@gozba.com",
                     Password = "admin123",
                     Role = Role.Admin
@@ -74,6 +80,7 @@ namespace gozba_na_klik.Data
                     Id = 3,
                     FirstName = "Admin",
                     LastName = "Three",
+                    Username = "Admin3",
                     Email = "admin3@gozba.com",
                     Password = "admin123",
                     Role = Role.Admin
