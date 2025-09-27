@@ -5,20 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Controllers
 {
-    public class AuthContoller : ControllerBase
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
 
-        public AuthContoller(AuthService authService)
+        public AuthController(AuthService authService)
         {
             _authService = authService;
         }
 
         //api/auth/login
         [HttpPost("login")]
-        public async Task<ActionResult<User>> LoginAsync(string email, string password)
+        public async Task<ActionResult<User>> LoginAsync([FromBody] LoginDto dto)
         {
-            var user = await _authService.LoginAsync(email, password);
+            var user = await _authService.LoginAsync(dto);
 
             if (user == null) return Unauthorized("Email or password are incorrect");
 

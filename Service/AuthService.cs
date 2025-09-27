@@ -13,9 +13,9 @@ namespace gozba_na_klik.Service
             _dbContext = dbContext;
         }
 
-        public async Task<User?> LoginAsync(string email, string password)
+        public async Task<User?> LoginAsync(LoginDto dto)
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == dto.Email && u.Password == dto.Password);
 
             return user is null ? null : user;
         }
