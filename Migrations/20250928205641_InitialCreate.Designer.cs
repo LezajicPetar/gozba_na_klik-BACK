@@ -11,8 +11,8 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    [Migration("20250927155322_AuthAndMappingsUpdate")]
-    partial class AuthAndMappingsUpdate
+    [Migration("20250928205641_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,6 +172,10 @@ namespace gozba_na_klik.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -186,8 +190,9 @@ namespace gozba_na_klik.Migrations
                             Email = "admin1@gozba.com",
                             FirstName = "Admin",
                             LastName = "One",
-                            PasswordHash = "$2a$12$iM4iYDgN1wy.PEDXZMBADOoSN2MqDHuSVKm2Vh5IPfo5HxL2SCvKC",
-                            Role = "Admin"
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin1"
                         },
                         new
                         {
@@ -195,8 +200,9 @@ namespace gozba_na_klik.Migrations
                             Email = "admin2@gozba.com",
                             FirstName = "Admin",
                             LastName = "Two",
-                            PasswordHash = "$2a$12$iM4iYDgN1wy.PEDXZMBADOoSN2MqDHuSVKm2Vh5IPfo5HxL2SCvKC",
-                            Role = "Admin"
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin2"
                         },
                         new
                         {
@@ -204,8 +210,9 @@ namespace gozba_na_klik.Migrations
                             Email = "admin3@gozba.com",
                             FirstName = "Admin",
                             LastName = "Three",
-                            PasswordHash = "$2a$12$iM4iYDgN1wy.PEDXZMBADOoSN2MqDHuSVKm2Vh5IPfo5HxL2SCvKC",
-                            Role = "Admin"
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin3"
                         });
                 });
 
