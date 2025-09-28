@@ -29,6 +29,9 @@ namespace gozba_na_klik
 
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<UserRepository>();
 
             builder.Services.AddCors(opt =>
             {

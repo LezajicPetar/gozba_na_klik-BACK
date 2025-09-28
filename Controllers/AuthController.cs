@@ -8,21 +8,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gozba_na_klik.Services;
 using System.Text.RegularExpressions;
+using gozba_na_klik.DtosAdmin;
 
 
 
-    [ApiController]
+[ApiController]
 [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-    private readonly GozbaDbContext _db;
     private readonly TokenService _tokenService;
+    private readonly AuthService _authService;
 
     // Password politika
     private const int MinPasswordLen = 8;
     private const int MaxPasswordLen = 128;
     private const int MaxNameLen = 35;
     private const int MaxEmailLen = 255;
+    private const int MaxUsernameLen = 12;
 
     // jednostavni regex-i
     private static readonly Regex _rxDigit = new("\\d", RegexOptions.Compiled);
@@ -30,19 +32,35 @@ using System.Text.RegularExpressions;
     private static readonly Regex _rxEmail = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
 
-    public AuthController(GozbaDbContext db, TokenService tokenService)
+    public AuthController(GozbaDbContext db, TokenService tokenService, AuthService authService)
         {
-        _db = db;
         _tokenService = tokenService;
+        _authService = authService;
         }
 
+    [HttpPost("login")]
+    public async Task<ActionResult<User>> LoginAsync([FromBody] LoginDto dto)
+    {
+        var user = await _authService.LoginAsync(dto);
+
+        return user is null ? Unauthorized() : Ok(user);
+    }
+
+    [HttpPost("logout")]
+    public async Task<ActionResult> LogoutAsync()
+    {
+        return Ok();
+    }
+
+
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
+    public async Task<ActionResult<AuthResponseDto>> RegisterAsync([FromBody] RegisterDto dto)
     {
         var first = (dto.FirstName ?? "").Trim();
         var last = (dto.LastName ?? "").Trim();
         var email = (dto.Email ?? "").Trim().ToLowerInvariant();
         var password = dto.Password ?? "";
+        var username = (dto.Username ?? "").Trim();
         var cpass = dto.ConfirmPassword ?? "";
 
         // Validacija
@@ -51,6 +69,9 @@ using System.Text.RegularExpressions;
 
         if (string.IsNullOrWhiteSpace(last) || last.Length > MaxNameLen)
             ModelState.AddModelError(nameof(dto.LastName), $"Obavezno polje (max {MaxNameLen} karaktera).");
+
+        if (string.IsNullOrWhiteSpace(username) || username.Length > MaxNameLen)
+            ModelState.AddModelError(nameof(dto.FirstName), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
 
         if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen ||! _rxEmail.IsMatch(email))
             ModelState.AddModelError(nameof(dto.Email), "Email nije validan.");
@@ -68,9 +89,9 @@ using System.Text.RegularExpressions;
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
-        // Unikatnost email-a
-        var exists = await _db.Users.AnyAsync(u => u.Email == email);
-        if (exists) return Conflict("Nalog sa tim email-om već postoji");
+        // Unikatnost email-a 
+        var exists = await _authService.GetByEmailAsync(email);
+        if (exists != null) return Conflict("Nalog sa tim email-om već postoji");
 
         // Kreiranje korisnika
         var hash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -80,11 +101,11 @@ using System.Text.RegularExpressions;
             FirstName = first,
             LastName = last,
             Email = email,
+            Username = username,
             PasswordHash = hash // Role ostaje default: Customer
         };
 
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
+        user = await _authService.RegisterUserAsync(user);
 
         // Token + odgovor
         var token = _tokenService.Generate(user);

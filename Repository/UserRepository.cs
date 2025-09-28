@@ -17,5 +17,12 @@ namespace gozba_na_klik.Repository
         {
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+
+        public async Task<User> AddUserAsync(User user)
+        {
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+            return user;
+        }
     }
 }

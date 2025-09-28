@@ -20,15 +20,24 @@ namespace gozba_na_klik.Service
         {
             var user = await _userRepo.GetByEmailAsync(dto.Email);
 
-            if(user != null && user.Password == dto.Password)
-            {
-                return user;
-            }
-            else
-            {
-                return null;
-            }
+            //VALIDACIJA ZA PASSWORD OVDE IDE
+
+            return user;
         }
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            var user = await _userRepo.GetByEmailAsync(email);
+
+            return null;
+        }
+        public async Task<User?> RegisterUserAsync(User u)
+        {
+            var user = await _userRepo.AddUserAsync(u);
+            
+            return user;
+        }
+
+
 
         public Task LogoutAsync()
         {

@@ -17,7 +17,7 @@ namespace gozba_na_klik.Data
         public DbSet<Allergen> Allergens { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<WorkTime> WorkTimes { get; set; }
-        public DbSet<UserAllergen> UserAllergens { get; set; } // <-- dodato
+        public DbSet<UserAllergen> UserAllergens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -87,7 +87,7 @@ namespace gozba_na_klik.Data
                     LastName = "One",
                     Username = "Admin1",
                     Email = "admin1@gozba.com",
-                    PasswordHash = AdminHash,
+                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                     Role = Role.Admin
                 },
                 new User
@@ -97,7 +97,7 @@ namespace gozba_na_klik.Data
                     LastName = "Two",
                     Username = "Admin2",
                     Email = "admin2@gozba.com",
-                    PasswordHash = AdminHash,
+                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                     Role = Role.Admin
                 },
                 new User
@@ -107,7 +107,7 @@ namespace gozba_na_klik.Data
                     LastName = "Three",
                     Username = "Admin3",
                     Email = "admin3@gozba.com",
-                    PasswordHash = AdminHash,
+                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                     Role = Role.Admin
                 });
 
