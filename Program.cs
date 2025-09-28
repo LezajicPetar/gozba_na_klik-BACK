@@ -2,6 +2,12 @@
 using gozba_na_klik.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using gozba_na_klik.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+
 
 namespace gozba_na_klik
 {
@@ -11,19 +17,45 @@ namespace gozba_na_klik
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddControllers()
+                .AddJsonOptions(o =>
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-            builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddControllers().AddJsonOptions(options =>
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddPolicy("Front", p =>
+                    p.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
+            });
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    var jwtKey = builder.Configuration["Jwt:Key"] ?? "dev-placeholder-key";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "dev-issuer",
+                        ValidAudience = builder.Configuration["Jwt:Audience"] ?? "dev-audience",
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                        ValidateLifetime = true,
+                    };
+                });
+
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddSingleton<TokenService>();
 
             var app = builder.Build();
 
@@ -36,6 +68,8 @@ namespace gozba_na_klik
 
             app.UseHttpsRedirection();
 
+            app.UseCors("Front");
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
