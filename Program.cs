@@ -36,6 +36,7 @@ namespace gozba_na_klik
                         .AllowAnyMethod());
             });
 
+
             var app = builder.Build();
 
 
@@ -47,6 +48,7 @@ namespace gozba_na_klik
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowFrontend");
 
             app.UseAuthorization();
 
