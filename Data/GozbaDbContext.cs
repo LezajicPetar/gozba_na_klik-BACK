@@ -7,9 +7,9 @@ namespace gozba_na_klik.Data
 {
     public class GozbaDbContext : DbContext
     {
-        public GozbaDbContext(DbContextOptions<GozbaDbContext> options) : base(options) 
-        { 
-            
+        public GozbaDbContext(DbContextOptions<GozbaDbContext> options) : base(options)
+        {
+
         }
 
         public DbSet<User> Users { get; set; }
@@ -79,14 +79,13 @@ namespace gozba_na_klik.Data
 
 
             #region SEED DATA
-            const string AdminHash = "$2a$12$iM4iYDgN1wy.PEDXZMBADOoSN2MqDHuSVKm2Vh5IPfo5HxL2SCvKC";
-
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
                     Id = 1,
                     FirstName = "Admin",
                     LastName = "One",
+                    Username = "Admin1",
                     Email = "admin1@gozba.com",
                     PasswordHash = AdminHash,
                     Role = Role.Admin
@@ -96,6 +95,7 @@ namespace gozba_na_klik.Data
                     Id = 2,
                     FirstName = "Admin",
                     LastName = "Two",
+                    Username = "Admin2",
                     Email = "admin2@gozba.com",
                     PasswordHash = AdminHash,
                     Role = Role.Admin
@@ -105,6 +105,7 @@ namespace gozba_na_klik.Data
                     Id = 3,
                     FirstName = "Admin",
                     LastName = "Three",
+                    Username = "Admin3",
                     Email = "admin3@gozba.com",
                     PasswordHash = AdminHash,
                     Role = Role.Admin

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BCrypt.Net;
 using gozba_na_klik.Data;
 using gozba_na_klik.Model;
+using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gozba_na_klik.Services;
@@ -10,10 +11,10 @@ using System.Text.RegularExpressions;
 
 
 
-[ApiController]
+    [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
-{
+    public class AuthController : ControllerBase
+    {
     private readonly GozbaDbContext _db;
     private readonly TokenService _tokenService;
 
@@ -30,10 +31,10 @@ public class AuthController : ControllerBase
 
 
     public AuthController(GozbaDbContext db, TokenService tokenService)
-    {
+        {
         _db = db;
         _tokenService = tokenService;
-    }
+        }
 
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)

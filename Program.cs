@@ -1,5 +1,7 @@
 
 using gozba_na_klik.Data;
+using gozba_na_klik.Repository;
+using gozba_na_klik.Service;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using gozba_na_klik.Services;
@@ -59,6 +61,7 @@ namespace gozba_na_klik
 
             var app = builder.Build();
 
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -71,7 +74,6 @@ namespace gozba_na_klik
             app.UseCors("Front");
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
