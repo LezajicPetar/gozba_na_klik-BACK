@@ -1,15 +1,14 @@
 ﻿using gozba_na_klik.Enums;
 using gozba_na_klik.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
 
 namespace gozba_na_klik.Data
 {
     public class GozbaDbContext : DbContext
     {
-        public GozbaDbContext(DbContextOptions<GozbaDbContext> options) : base(options) 
-        { 
-            
+        public GozbaDbContext(DbContextOptions<GozbaDbContext> options) : base(options)
+        {
+
         }
 
         public DbSet<User> Users { get; set; }
@@ -25,6 +24,11 @@ namespace gozba_na_klik.Data
             modelBuilder.Entity<User>()
            .HasIndex(u => u.Username)
            .IsUnique();
+
+            modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
 
             //potencijalno treba povezati i restoran sa worktime
             modelBuilder.Entity<Restaurant>()

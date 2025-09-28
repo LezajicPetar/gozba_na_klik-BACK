@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.Model;
+﻿using gozba_na_klik.DtosAdmin;
+using gozba_na_klik.Model;
 using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,6 @@
 
 using gozba_na_klik.Data;
+using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -26,12 +27,13 @@ namespace gozba_na_klik
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<UserRepository>();
 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend",
                     policy => policy
-                        .WithOrigins("http://localhost:5173")
+                        .WithOrigins("http://localhost:5173", "https://localhost:5173")
                         .AllowAnyHeader()
                         .AllowAnyMethod());
             });
@@ -48,11 +50,10 @@ namespace gozba_na_klik
             }
 
             app.UseHttpsRedirection();
+
             app.UseCors("AllowFrontend");
 
             app.UseAuthorization();
-
-            app.UseCors("AllowFrontend");
 
             app.MapControllers();
 
