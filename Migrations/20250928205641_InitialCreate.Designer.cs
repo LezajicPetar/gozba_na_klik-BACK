@@ -11,8 +11,8 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    [Migration("20250924095214_init")]
-    partial class init
+    [Migration("20250928205641_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -147,27 +147,39 @@ namespace gozba_na_klik.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(35)
+                        .HasColumnType("character varying(35)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(35)
+                        .HasColumnType("character varying(35)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ProfilePicture")
                         .HasColumnType("text");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
 
@@ -178,8 +190,9 @@ namespace gozba_na_klik.Migrations
                             Email = "admin1@gozba.com",
                             FirstName = "Admin",
                             LastName = "One",
-                            Password = "admin123",
-                            Role = 0
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin1"
                         },
                         new
                         {
@@ -187,8 +200,9 @@ namespace gozba_na_klik.Migrations
                             Email = "admin2@gozba.com",
                             FirstName = "Admin",
                             LastName = "Two",
-                            Password = "admin123",
-                            Role = 0
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin2"
                         },
                         new
                         {
@@ -196,32 +210,28 @@ namespace gozba_na_klik.Migrations
                             Email = "admin3@gozba.com",
                             FirstName = "Admin",
                             LastName = "Three",
-                            Password = "admin123",
-                            Role = 0
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin3"
                         });
                 });
 
             modelBuilder.Entity("gozba_na_klik.Model.UserAllergen", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AllergenId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "AllergenId");
 
                     b.HasIndex("AllergenId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAllergen");
+                    b.ToTable("UserAllergens");
                 });
 
             modelBuilder.Entity("gozba_na_klik.Model.WorkTime", b =>

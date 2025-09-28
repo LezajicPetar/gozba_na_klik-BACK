@@ -63,7 +63,7 @@ namespace gozba_na_klik.Controllers
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
-                Password = dto.Password,
+                PasswordHash = dto.Password,
                 Role = dto.Role
             };
 

@@ -4,6 +4,12 @@ using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using gozba_na_klik.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+
 
 namespace gozba_na_klik
 {
@@ -13,31 +19,48 @@ namespace gozba_na_klik
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddControllers()
+                .AddJsonOptions(o =>
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-            builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddControllers().AddJsonOptions(options =>
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<UserRepository>();
 
-            builder.Services.AddCors(options =>
+            builder.Services.AddCors(opt =>
             {
-                options.AddPolicy("AllowFrontend",
-                    policy => policy
-                        .WithOrigins("http://localhost:5173", "https://localhost:5173")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+                opt.AddPolicy("Front", p =>
+                    p.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
             });
 
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    var jwtKey = builder.Configuration["Jwt:Key"] ?? "dev-placeholder-key";
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "dev-issuer",
+                        ValidAudience = builder.Configuration["Jwt:Audience"] ?? "dev-audience",
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                        ValidateLifetime = true,
+                    };
+                });
+
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddSingleton<TokenService>();
 
             var app = builder.Build();
 
@@ -51,8 +74,8 @@ namespace gozba_na_klik
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowFrontend");
-
+            app.UseCors("Front");
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

@@ -2,6 +2,7 @@
 using gozba_na_klik.Model;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace gozba_na_klik.Data
 {
     public class GozbaDbContext : DbContext
@@ -16,19 +17,29 @@ namespace gozba_na_klik.Data
         public DbSet<Allergen> Allergens { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<WorkTime> WorkTimes { get; set; }
+        public DbSet<UserAllergen> UserAllergens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>()
-           .HasIndex(u => u.Username)
-           .IsUnique();
+            // User: unique email + role kao string + hash lozinke
 
-            modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+            modelBuilder.Entity<User>(e =>
+            {
+                e.Property(u => u.FirstName).HasMaxLength(35).IsRequired();
+                e.Property(u => u.LastName).HasMaxLength(35).IsRequired();
 
+                e.Property(u => u.Email).HasMaxLength(50).IsRequired();
+                e.HasIndex(u => u.Email).IsUnique();
+
+                e.Property(u => u.Role)
+                    .HasConversion<string>()
+                    .HasMaxLength(32)
+                    .IsRequired();
+
+                e.Property(u => u.PasswordHash).IsRequired();
+            });
 
             //potencijalno treba povezati i restoran sa worktime
             modelBuilder.Entity<Restaurant>()
@@ -52,10 +63,20 @@ namespace gozba_na_klik.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserAllergen>()
-                   .HasOne(ua => ua.User)
-                   .WithMany(u => u.UserAllergens)
-                   .HasForeignKey(ua => ua.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                .HasKey(ua => new { ua.UserId, ua.AllergenId });
+
+            modelBuilder.Entity<UserAllergen>()
+                .HasOne(ua => ua.User)
+                .WithMany(u => u.UserAllergens)
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserAllergen>()
+                .HasOne(ua => ua.Allergen)
+                .WithMany(a => a.UserAllergens)
+                .HasForeignKey(ua => ua.AllergenId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             #region SEED DATA
             modelBuilder.Entity<User>().HasData(
@@ -66,7 +87,7 @@ namespace gozba_na_klik.Data
                     LastName = "One",
                     Username = "Admin1",
                     Email = "admin1@gozba.com",
-                    Password = "admin123",
+                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                     Role = Role.Admin
                 },
                 new User
@@ -76,7 +97,7 @@ namespace gozba_na_klik.Data
                     LastName = "Two",
                     Username = "Admin2",
                     Email = "admin2@gozba.com",
-                    Password = "admin123",
+                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                     Role = Role.Admin
                 },
                 new User
@@ -86,7 +107,7 @@ namespace gozba_na_klik.Data
                     LastName = "Three",
                     Username = "Admin3",
                     Email = "admin3@gozba.com",
-                    Password = "admin123",
+                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                     Role = Role.Admin
                 });
 
