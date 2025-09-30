@@ -12,6 +12,20 @@ namespace gozba_na_klik.Repository
         {
             _dbContext = dbContext;
         }
+        public async Task<List<User>> GetAllAsync()
+        {
+            return await _dbContext.Users.ToListAsync();
+        }
+
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            return await _dbContext.Users.AnyAsync(u => u.Email == email);
+        }
+
+        public async Task<bool> ExistsByNameAsync(string firstName, string lastName)
+        {
+            return await _dbContext.Users.AnyAsync(u => u.FirstName == firstName && u.LastName == lastName);
+        }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
