@@ -1,4 +1,6 @@
 ﻿using gozba_na_klik.Data;
+using gozba_na_klik.Dtos.Users;
+using gozba_na_klik.Enums;
 using gozba_na_klik.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,6 +39,20 @@ namespace gozba_na_klik.Repository
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
             return user;
+        }
+
+        //za dobavljanje vlasnika restorana
+        public async Task<List<OwnerDto>> GetOwnersAsync()
+        {
+            return await _dbContext.Users
+                .Where(u => u.Role == Role.RestaurantOwner)
+                .Select(u => new OwnerDto
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName
+                })
+                .ToListAsync();
         }
     }
 }

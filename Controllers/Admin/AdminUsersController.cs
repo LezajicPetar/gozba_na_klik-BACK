@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.DtosAdmin;
+﻿using gozba_na_klik.Dtos.Users;
+using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Enums;
 using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
@@ -103,5 +104,15 @@ namespace gozba_na_klik.Controllers.Admin
                 return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
             }
         }
+
+        //GET za vlasnike restorana
+
+        [HttpGet("owners")]
+        public async Task<ActionResult<List<OwnerDto>>> GetOwners()
+        {
+            var owners = await _repository.GetOwnersAsync();
+            return Ok(owners);
+        }
+
     }
 }
