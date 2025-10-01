@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Controllers
 {
+    [ApiController]
+    [Route("api/users")]
     public class UsersController : Controller
     {
         private readonly GozbaDbContext _db;
@@ -21,6 +23,7 @@ namespace gozba_na_klik.Controllers
 
         [HttpPost("{id:int}/photo")]
         [RequestSizeLimit(10_000_000)] //10 MB
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadPhoto([FromRoute] int id, IFormFile file)
         {
             if (file == null || file.Length == 0) return BadRequest("Fajl je obavezan. ");
