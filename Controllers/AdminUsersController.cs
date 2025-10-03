@@ -78,5 +78,10 @@ namespace gozba_na_klik.Controllers
                 Role = user.Role
             });
         }
+
+        //public async Task<ActionResult> GetAllergens(int id)
+        //{
+
+        //}
     }
 }

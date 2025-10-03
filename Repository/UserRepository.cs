@@ -24,5 +24,24 @@ namespace gozba_na_klik.Repository
             await _dbContext.SaveChangesAsync();
             return user;
         }
+
+        public async Task<User?> UpdateUserAsync(User user)
+        {
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            return await _dbContext.Users
+            .Include(u => u.UserAllergens)
+            .ThenInclude(ua => ua.Allergen)
+            .FirstOrDefaultAsync(u => u.Id == user.Id);
+        }
+
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            return await _dbContext.Users
+                    .Include(u => u.UserAllergens)
+                    .ThenInclude(ua => ua.Allergen) 
+                    .FirstOrDefaultAsync(u => u.Id == id);
+        }
     }
 }

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using gozba_na_klik.Data;
+﻿using gozba_na_klik.Data;
+using gozba_na_klik.Dtos;
+using gozba_na_klik.Service;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Controllers
@@ -10,17 +12,41 @@ namespace gozba_na_klik.Controllers
     {
         private readonly GozbaDbContext _db;
         private readonly IWebHostEnvironment _env;
+        private readonly UserService _userService;
 
         private static readonly string[] Allowed = new[] { "image/jpeg", "image/png" };
         
-        public UsersController(GozbaDbContext db, IWebHostEnvironment env)
+        public UsersController(GozbaDbContext db, IWebHostEnvironment env, UserService userService)
         {
             _db = db;
             _env = env;
+            _userService = userService;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserAsync(int id, [FromBody] UpdateCustomerDto dto)
+        {
+            var updatedUser = await _userService.UpdateUserAsync(id, dto);
+
+            if (updatedUser is null)
+                return NotFound();
+
+            var response = new UserDto
+            {
+                Id = updatedUser.Id,
+                FirstName = updatedUser.FirstName,
+                LastName = updatedUser.LastName,
+                Username = updatedUser.Username,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role.ToString(),
+                ProfilePicture = updatedUser.ProfilePicture,
+                Allergens = updatedUser.UserAllergens.Select(ua => ua.Allergen.Name).ToList()
+            };
+
+            return Ok(response);
         }
 
         //POST /api/users/{id}/photo
-
         [HttpPost("{id:int}/photo")]
         [RequestSizeLimit(10_000_000)] //10 MB
         [Consumes("multipart/form-data")]
@@ -84,7 +110,6 @@ namespace gozba_na_klik.Controllers
 
             return NoContent();
         }
-
     }
 
 
