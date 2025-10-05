@@ -18,7 +18,7 @@ namespace gozba_na_klik.Repository
             return await _dbContext.Allergens.FirstOrDefaultAsync(a => a.Name == name);
         }
 
-        public async Task<List<Allergen>> GetAllAsync()
+        public async Task<ICollection<Allergen>?> GetAllAsync()
         {
             return await _dbContext.Allergens.ToListAsync();
         }

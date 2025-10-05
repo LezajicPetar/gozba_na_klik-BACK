@@ -31,19 +31,9 @@ namespace gozba_na_klik.Controllers
             if (updatedUser is null)
                 return NotFound();
 
-            var response = new UserDto
-            {
-                Id = updatedUser.Id,
-                FirstName = updatedUser.FirstName,
-                LastName = updatedUser.LastName,
-                Username = updatedUser.Username,
-                Email = updatedUser.Email,
-                Role = updatedUser.Role.ToString(),
-                ProfilePicture = updatedUser.ProfilePicture,
-                Allergens = updatedUser.UserAllergens.Select(ua => ua.Allergen.Name).ToList()
-            };
-
-            return Ok(response);
+            var userDto =  gozba_na_klik.Dtos.UserDto.createDto(updatedUser);
+            
+            return Ok(userDto);
         }
 
         //POST /api/users/{id}/photo

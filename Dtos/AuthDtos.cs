@@ -1,4 +1,6 @@
-﻿public class RegisterDto
+﻿using gozba_na_klik.Dtos;
+
+public class RegisterDto
 {
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
@@ -9,15 +11,15 @@
     public string ConfirmPassword { get; set; } = default!;
 }
 
-public class UserDto
-{
-    public int Id { get; set; } 
-    public string FirstName { get; set; } = default!;
-    public string LastName { get; set; } = default!;
-    public string Email { get; set; } = default!;
-    public string Role { get; set; } = default!;
-    public string? ProfilePicture { get; set; }
-}
+//public class UserDto
+//{
+//    public int Id { get; set; } 
+//    public string FirstName { get; set; } = default!;
+//    public string LastName { get; set; } = default!;
+//    public string Email { get; set; } = default!;
+//    public string Role { get; set; } = default!;
+//    public string? ProfilePicture { get; set; }
+//}
 
 public class AuthResponseDto
 {

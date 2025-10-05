@@ -20,7 +20,7 @@ namespace gozba_na_klik.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var allergens = await _dbContext.Allergens
-                .Select(a => new { a.Id, a.Name })
+                .Select(a => a.Name)
                 .ToListAsync();
 
             return Ok(allergens);

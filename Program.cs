@@ -36,6 +36,7 @@ namespace gozba_na_klik
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
+            builder.Services.AddScoped<UserAllergenService>();
 
             builder.Services.AddCors(opt =>
             {

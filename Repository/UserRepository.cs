@@ -15,7 +15,10 @@ namespace gozba_na_klik.Repository
 
         public async Task<User?> GetByEmailAsync(string email)
         {
-            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _dbContext.Users
+                    .Include(u => u.UserAllergens)
+                    .ThenInclude(ua => ua.Allergen)
+                    .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<User> AddUserAsync(User user)
