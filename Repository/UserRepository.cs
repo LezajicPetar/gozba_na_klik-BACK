@@ -36,6 +36,23 @@ namespace gozba_na_klik.Repository
 
         public async Task<User> AddUserAsync(User user)
         {
+            if (string.IsNullOrWhiteSpace(user.Username))
+            {
+                if (!string.IsNullOrWhiteSpace(user.Email) && user.Email.Contains("@"))
+                {
+                    user.Username = user.Email.Split('@')[0];
+                }
+                else
+                {
+                    user.Username = (user.FirstName + user.LastName).ToLower();
+                }
+
+                if (string.IsNullOrWhiteSpace(user.Username))
+                {
+                    user.Username = "user" + Guid.NewGuid().ToString("N").Substring(0, 6);
+                }
+            }
+
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
             return user;
