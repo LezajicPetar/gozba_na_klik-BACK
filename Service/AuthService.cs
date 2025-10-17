@@ -1,7 +1,9 @@
 ﻿using gozba_na_klik.Data;
+using gozba_na_klik.Dtos;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
 
@@ -16,13 +18,13 @@ namespace gozba_na_klik.Service
             _userRepo = userRepo;
         }
 
-        public async Task<User?> LoginAsync(LoginDto dto)
+        public async Task<UserDto?> LoginAsync(LoginDto dto)
         {
             var user = await _userRepo.GetByEmailAsync(dto.Email);
 
             //VALIDACIJA ZA PASSWORD OVDE IDE
 
-            return user;
+            return user is null ? null : UserDto.createDto(user);
         }
         public async Task<User?> GetByEmailAsync(string email)
         {

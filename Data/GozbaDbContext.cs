@@ -41,6 +41,9 @@ namespace gozba_na_klik.Data
                 e.Property(u => u.PasswordHash).IsRequired();
             });
 
+            modelBuilder.Entity<UserAllergen>()
+                .HasKey(ua => new { ua.UserId, ua.AllergenId });
+
             //potencijalno treba povezati i restoran sa worktime
             modelBuilder.Entity<Restaurant>()
                 .HasOne(o => o.Owner)

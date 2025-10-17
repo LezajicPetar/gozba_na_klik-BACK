@@ -14,11 +14,12 @@ namespace gozba_na_klik.Repository
         {
             _dbContext = dbContext;
         }
+        #region USER
         public async Task<List<User>> GetAllAsync()
         {
             return await _dbContext.Users.ToListAsync();
         }
-
+  
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             return await _dbContext.Users.AnyAsync(u => u.Email == email);
@@ -31,7 +32,10 @@ namespace gozba_na_klik.Repository
 
         public async Task<User?> GetByEmailAsync(string email)
         {
-            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _dbContext.Users
+                    .Include(u => u.UserAllergens)
+                    .ThenInclude(ua => ua.Allergen)
+                    .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<User> AddUserAsync(User user)
@@ -58,6 +62,29 @@ namespace gozba_na_klik.Repository
             return user;
         }
 
+        public async Task<User?> UpdateUserAsync(User user)
+        {
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            return await _dbContext.Users
+            .Include(u => u.UserAllergens)
+            .ThenInclude(ua => ua.Allergen)
+            .FirstOrDefaultAsync(u => u.Id == user.Id);
+        }
+
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            return await _dbContext.Users
+                    .Include(u => u.UserAllergens)
+                    .ThenInclude(ua => ua.Allergen) 
+                    .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        #endregion
+
+        #region OWNER
+
         //za dobavljanje vlasnika restorana
         public async Task<List<OwnerDto>> GetOwnersAsync()
         {
@@ -71,5 +98,7 @@ namespace gozba_na_klik.Repository
                 })
                 .ToListAsync();
         }
+
+        #endregion
     }
 }
