@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using gozba_na_klik.Services;
 using System.Text.RegularExpressions;
 using gozba_na_klik.DtosAdmin;
+using gozba_na_klik.Dtos;
 
 
 
@@ -32,18 +33,18 @@ using gozba_na_klik.DtosAdmin;
     private static readonly Regex _rxEmail = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
 
-    public AuthController(GozbaDbContext db, TokenService tokenService, AuthService authService)
-        {
+    public AuthController(TokenService tokenService, AuthService authService)
+    {
         _tokenService = tokenService;
         _authService = authService;
-        }
+    }
 
     [HttpPost("login")]
     public async Task<ActionResult<User>> LoginAsync([FromBody] LoginDto dto)
     {
-        var user = await _authService.LoginAsync(dto);
+        var userDto = await _authService.LoginAsync(dto);
 
-        return user is null ? Unauthorized() : Ok(user);
+        return userDto is null ? Unauthorized() : Ok(userDto);
     }
 
     [HttpPost("logout")]

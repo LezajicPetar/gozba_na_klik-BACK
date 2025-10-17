@@ -8,6 +8,7 @@ using gozba_na_klik.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 
 
 
@@ -32,6 +33,10 @@ namespace gozba_na_klik
             
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<AllergenRepository>();
+            builder.Services.AddScoped<UserAllergenRepository>();
+            builder.Services.AddScoped<UserAllergenService>();
             builder.Services.AddScoped<RestaurantRepository>();
 
 
@@ -63,6 +68,11 @@ namespace gozba_na_klik
             builder.Services.AddAuthorization();
 
             builder.Services.AddSingleton<TokenService>();
+            //dodato ako zelimo da upload-ujemo fajlove vece od 10MB
+            builder.Services.Configure<FormOptions>(o =>
+            {
+                o.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
+            });
 
             var app = builder.Build();
 
@@ -79,6 +89,9 @@ namespace gozba_na_klik
             app.UseCors("Front");
             app.UseAuthentication();
             app.UseAuthorization();
+            
+            //bitno da bi /uploads/ radilo
+            app.UseStaticFiles();
 
             app.MapControllers();
 
