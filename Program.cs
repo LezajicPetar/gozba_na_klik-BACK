@@ -1,14 +1,17 @@
 
 using gozba_na_klik.Data;
+using gozba_na_klik.Middlewear;
 using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using gozba_na_klik.Services;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Filters;
+using System.Text;
+using System.Text.Json.Serialization;
 
 
 
@@ -39,6 +42,22 @@ namespace gozba_na_klik
             builder.Services.AddScoped<UserAllergenService>();
             builder.Services.AddScoped<RestaurantRepository>();
 
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                //cfg.AddProfile<MappingProfile>(); PRIMER ZA DODAVANJE PROFILA
+            });
+
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Filter.ByExcluding(Matching.FromSource("Microsoft"))
+                .Filter.ByExcluding(Matching.FromSource("System"))
+                .Filter.ByIncludingOnly(Matching.FromSource("gozba_na_klik"))                
+                .CreateLogger();
+
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog(logger);
+
+            builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
             builder.Services.AddCors(opt =>
             {
@@ -75,6 +94,8 @@ namespace gozba_na_klik
             });
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 
             // Configure the HTTP request pipeline.
