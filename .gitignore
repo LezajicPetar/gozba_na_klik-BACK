@@ -399,6 +399,10 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# Local uploads (profile and restaurant images)
+wwwroot/uploads/
+
+
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 

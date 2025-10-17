@@ -51,6 +51,15 @@ namespace gozba_na_klik.Repository
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Restaurant>> GetByOwnerAsync(int ownerId)
+        {
+            return await _dbContext.Restaurants
+                .Include(r => r.Owner)
+                .Where(r => r.OwnerId == ownerId)
+                .OrderBy(r =>  r.Name)
+                .ToListAsync();
+        }
     }
 }
 

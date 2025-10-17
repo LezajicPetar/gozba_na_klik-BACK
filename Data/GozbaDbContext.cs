@@ -51,6 +51,14 @@ namespace gozba_na_klik.Data
                 .HasForeignKey(r => r.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Restaurant>(e =>
+            {
+                e.Property(r => r.Name).HasMaxLength(120).IsRequired();
+                e.Property(r => r.Description).HasMaxLength(4000);
+                e.Property(r => r.Phone).HasMaxLength(32);
+                e.Property(r => r.Photo).HasMaxLength(512);
+            });
+
 
             modelBuilder.Entity<WorkTime>()
                 .HasOne(u => u.User)
