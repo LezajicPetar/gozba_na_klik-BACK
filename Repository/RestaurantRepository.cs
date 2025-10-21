@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Repository
 {
-    public class RestaurantRepository
+    public class RestaurantRepository : IRepository<Restaurant>
     {
         private readonly GozbaDbContext _dbContext;
 
@@ -13,7 +13,7 @@ namespace gozba_na_klik.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<List<Restaurant>> GetAllAsync()
+        public async Task<IEnumerable<Restaurant>> GetAllAsync()
         {
             return await _dbContext.Restaurants
                 .Include(r => r.Owner)
@@ -27,29 +27,29 @@ namespace gozba_na_klik.Repository
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public async Task<Restaurant> AddAsync(Restaurant restaurant)
+        public async Task<Restaurant> UpdateAsync(Restaurant entity)
         {
-            await _dbContext.Restaurants.AddAsync(restaurant);
+            _dbContext.Restaurants.Update(entity);
             await _dbContext.SaveChangesAsync();
-            return restaurant;
+            return entity;
         }
 
-        public async Task<Restaurant?> UpdateAsync(Restaurant restaurant)
+        public async Task<Restaurant> CreateAsync(Restaurant entity)
         {
-            _dbContext.Restaurants.Update(restaurant);
+            await _dbContext.Restaurants.AddAsync(entity);
             await _dbContext.SaveChangesAsync();
-            return restaurant;
+            return entity;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<Restaurant?> DeleteAsync(int id)
         {
             var restaurant = await _dbContext.Restaurants.FindAsync(id);
             if (restaurant == null)
-                return false;
+                return null;
 
             _dbContext.Restaurants.Remove(restaurant);
             await _dbContext.SaveChangesAsync();
-            return true;
+            return restaurant;
         }
 
         public async Task<List<Restaurant>> GetByOwnerAsync(int ownerId)

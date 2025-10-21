@@ -1,6 +1,10 @@
 
+using System.Text;
+using System.Text.Json.Serialization;
 using gozba_na_klik.Data;
+using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
+using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
 using gozba_na_klik.Services;
@@ -10,8 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
-using System.Text;
-using System.Text.Json.Serialization;
 
 
 
@@ -40,11 +42,13 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
-            builder.Services.AddScoped<RestaurantRepository>();
+            builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+            builder.Services.AddScoped<IRepository<Restaurant>, RestaurantRepository>();
+
 
             builder.Services.AddAutoMapper(cfg =>
             {
-                //cfg.AddProfile<MappingProfile>(); PRIMER ZA DODAVANJE PROFILA
+                cfg.AddProfile<RestaurantProfile>();
             });
 
             var logger = new LoggerConfiguration()
