@@ -60,6 +60,47 @@ namespace gozba_na_klik.Repository
                 .OrderBy(r =>  r.Name)
                 .ToListAsync();
         }
+
+        public async Task<List<RestaurantWorkTime>> GetWorkTimesAsync(int restaurantId)
+        {
+            return await _dbContext.RestaurantWorkTimes
+                .Where(w => w.RestaurantId == restaurantId)
+                .OrderBy(w => w.DayOfWeek)
+                .ToListAsync();
+        }
+
+        public async Task SetWorkTimesAsync(int restaurantId, IEnumerable<RestaurantWorkTime> times)
+        {
+            var existing = _dbContext.RestaurantWorkTimes.Where(w => w.RestaurantId == restaurantId);
+            _dbContext.RestaurantWorkTimes.RemoveRange(existing);
+            foreach (var t in times) { t.RestaurantId = restaurantId; _dbContext.RestaurantWorkTimes.Add(t); }
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<RestaurantExceptionDate>> GetExceptionsAsync(int restaurantId)
+        {
+            return await _dbContext.RestaurantExceptionDates
+                .Where(e => e.RestaurantId == restaurantId)
+                .OrderBy(e => e.Date)
+                .ToListAsync();
+        }
+
+        public async Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex)
+        {
+            await _dbContext.RestaurantExceptionDates.AddAsync(ex);
+            await _dbContext.SaveChangesAsync();
+            return ex;
+        }
+
+        public async Task<bool> DeleteExceptionAsync(int exceptionId)
+        {
+            var e = await _dbContext.RestaurantExceptionDates.FindAsync(exceptionId);
+            if (e == null) return false;
+            _dbContext.RestaurantExceptionDates.Remove(e);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
 

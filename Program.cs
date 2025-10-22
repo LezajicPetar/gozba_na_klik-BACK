@@ -25,9 +25,12 @@ namespace gozba_na_klik
 
             builder.Services.AddControllers()
                 .AddJsonOptions(o =>
-                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                {
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
+                    
+                    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
