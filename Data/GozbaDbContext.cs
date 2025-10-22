@@ -1,5 +1,5 @@
 ﻿using gozba_na_klik.Enums;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -39,6 +39,7 @@ namespace gozba_na_klik.Data
                     .IsRequired();
 
                 e.Property(u => u.PasswordHash).IsRequired();
+                e.Property(u => u.IsSuspended).HasDefaultValue(false).IsRequired();
             });
 
             modelBuilder.Entity<UserAllergen>()
@@ -60,11 +61,24 @@ namespace gozba_na_klik.Data
             });
 
 
-            modelBuilder.Entity<WorkTime>()
-                .HasOne(u => u.User)
-                .WithMany(w => w.WorkTimes)
-                .HasForeignKey(w => w.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<WorkTime>(e =>
+            {
+                e.HasKey(w => w.Id);
+
+                e.Property(w => w.DayOfWeek).IsRequired();
+                e.HasCheckConstraint("CK_WorkTime_DayOfWeek", "[DayOfWeek] >= 0 AND [DayOfWeek] <= 6");
+
+                e.Property(w => w.Start).HasColumnType("time without time zone");
+                e.Property(w => w.End).HasColumnType("time without time zone");
+
+                e.HasOne(w => w.User)
+                    .WithMany(u => u.WorkTimes)
+                    .HasForeignKey(w => w.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Jedan red po danu po korisniku
+                e.HasIndex(w => new { w.UserId, w.DayOfWeek }).IsUnique();
+            });
 
             //potencijalno treba povezati adresu sa restoranom
             modelBuilder.Entity<Address>()
@@ -98,7 +112,7 @@ namespace gozba_na_klik.Data
                     LastName = "One",
                     Username = "Admin1",
                     Email = "admin1@gozba.com",
-                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                    PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
                     Role = Role.Admin
                 },
                 new User
@@ -108,7 +122,7 @@ namespace gozba_na_klik.Data
                     LastName = "Two",
                     Username = "Admin2",
                     Email = "admin2@gozba.com",
-                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                    PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
                     Role = Role.Admin
                 },
                 new User
@@ -118,7 +132,7 @@ namespace gozba_na_klik.Data
                     LastName = "Three",
                     Username = "Admin3",
                     Email = "admin3@gozba.com",
-                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                    PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
                     Role = Role.Admin
                 });
 

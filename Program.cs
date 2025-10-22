@@ -2,8 +2,8 @@
 using gozba_na_klik.Data;
 using gozba_na_klik.Middlewear;
 using gozba_na_klik.Repository;
-using gozba_na_klik.Service;
-using gozba_na_klik.Services;
+using gozba_na_klik.Service.External;
+using gozba_na_klik.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
@@ -92,6 +92,9 @@ namespace gozba_na_klik
             {
                 o.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
             });
+
+            builder.Services.AddScoped<gozba_na_klik.Model.Interfaces.ICourierRepository, gozba_na_klik.Repository.CourierRepository>();
+            builder.Services.AddScoped<gozba_na_klik.Service.Interfaces.ICourierService, gozba_na_klik.Service.Implementations.CourierService>();
 
             var app = builder.Build();
 

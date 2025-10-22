@@ -1,6 +1,6 @@
 ﻿using gozba_na_klik.Data;
 using gozba_na_klik.Dtos;
-using gozba_na_klik.Service;
+using gozba_na_klik.Service.Implementations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

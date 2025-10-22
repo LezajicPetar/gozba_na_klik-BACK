@@ -2,14 +2,14 @@
 using System.Threading.Tasks;
 using BCrypt.Net;
 using gozba_na_klik.Data;
-using gozba_na_klik.Model;
-using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using gozba_na_klik.Services;
 using System.Text.RegularExpressions;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Dtos;
+using gozba_na_klik.Model.Entities;
+using gozba_na_klik.Service.External;
+using gozba_na_klik.Service.Implementations;
 
 
 

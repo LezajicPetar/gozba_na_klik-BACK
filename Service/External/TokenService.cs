@@ -1,11 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace gozba_na_klik.Services 
+namespace gozba_na_klik.Service.External
 {
     public class TokenService
     {

@@ -1,7 +1,7 @@
 ﻿using gozba_na_klik.Enums;
 using System.Net;
 
-namespace gozba_na_klik.Model
+namespace gozba_na_klik.Model.Entities
 {
     public class User
     {
@@ -12,6 +12,7 @@ namespace gozba_na_klik.Model
         public string Email { get; set; }
         public string PasswordHash { get; set; } = default!;
         public Role Role { get; set; } = Role.Customer;
+        public bool IsSuspended { get; set; } = false;
 
         public string? ProfilePicture { get; set; }
 

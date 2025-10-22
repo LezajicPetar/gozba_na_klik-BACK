@@ -1,6 +1,6 @@
 ﻿using gozba_na_klik.Data;
-using gozba_na_klik.Model;
-using Microsoft.EntityFrameworkCore; 
+using gozba_na_klik.Model.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Repository
 {

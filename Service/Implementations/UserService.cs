@@ -1,8 +1,9 @@
 ﻿using gozba_na_klik.Dtos;
 using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Repository;
 
-namespace gozba_na_klik.Service
+namespace gozba_na_klik.Service.Implementations
 {
     public class UserService
     {
@@ -37,7 +38,7 @@ namespace gozba_na_klik.Service
                     })
                     .ToList();
 
-                await _userAllergenRepository.ReplaceUserAllergens(user, newUserAllergens);
+            await _userAllergenRepository.ReplaceUserAllergens(user, newUserAllergens);
 
             return await _userRepository.UpdateUserAsync(user);
         }

@@ -2,6 +2,7 @@
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
+using gozba_na_klik.Model.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

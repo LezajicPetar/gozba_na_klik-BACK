@@ -1,7 +1,7 @@
 ﻿using gozba_na_klik.Dtos.Users;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Enums;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,6 @@ namespace gozba_na_klik.Controllers.Admin
 {
     [Route("api/admin/users")]
     [ApiController]
-    //[Authorize(Roles = "Admin")] // odkomentariši kad dodaš auth
     public class AdminUsersController : ControllerBase
     {
         private readonly UserRepository _repository;
@@ -30,20 +29,12 @@ namespace gozba_na_klik.Controllers.Admin
                 var dtos = users.Select(u => new AdminUserDto
                 {
                     Id = u.Id,
-                    Username = u.FirstName + " " + u.LastName,
+                    Username = u.Username,     // vracamo stvarni Username iz baze
                     Email = u.Email,
                     Role = u.Role
                 });
 
                 return Ok(dtos);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(new { message = "Invalid request.", detail = ex.Message });
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, new { message = "A database error occurred.", detail = ex.Message });
             }
             catch (Exception ex)
             {
@@ -52,52 +43,58 @@ namespace gozba_na_klik.Controllers.Admin
         }
 
         [HttpPost]
-        public async Task<ActionResult<AdminUserDto>> PostUsers(CreateUserDto dto)
+        public async Task<ActionResult<AdminUserDto>> PostUsers([FromBody] CreateUserDto dto)
         {
             try
             {
-                if (dto.Password.Length < 6)
+                if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6)
                     return BadRequest(new { message = "Password should be at least 6 characters." });
 
-                var passwordPattern = @"^(?=.*[0-9])(?=.*[^a-zA-Z0-9]).+$";
+                var passwordPattern = @"^(?=.*\d)(?=.*[^a-zA-Z0-9]).+$";
                 if (!System.Text.RegularExpressions.Regex.IsMatch(dto.Password, passwordPattern))
                     return BadRequest(new { message = "Password must contain at least one number and one special character." });
 
-                if (await _repository.ExistsByEmailAsync(dto.Email))
-                    return BadRequest(new { message = "The email already exists." });
-
-                if (await _repository.ExistsByNameAsync(dto.FirstName, dto.LastName))
-                    return BadRequest(new { message = "User with this name already exists." });
-
                 if (dto.Role != Role.Courier && dto.Role != Role.RestaurantOwner)
                     return BadRequest(new { message = "The role should be set to Courier or RestaurantOwner." });
+
+                if (await _repository.ExistsByEmailAsync(dto.Email))
+                    return Conflict(new { message = "Email already exists." });
+
+                // napravi neki username (bez provere zauzetosti, jer repo nema metodu)
+                var baseUsername = (dto.FirstName + "." + dto.LastName)
+                    .ToLowerInvariant()
+                    .Replace(' ', '-');
+
+                // hesiraj lozinku
+                var hash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
                 var user = new User
                 {
                     FirstName = dto.FirstName,
                     LastName = dto.LastName,
+                    Username = baseUsername,
                     Email = dto.Email,
-                    PasswordHash = dto.Password,
-                    Role = dto.Role
+                    PasswordHash = hash,
+                    Role = dto.Role,
+                    IsSuspended = false
                 };
 
                 var saved = await _repository.AddUserAsync(user);
 
-                return Ok(new AdminUserDto
+                var result = new AdminUserDto
                 {
                     Id = saved.Id,
-                    Username = saved.FirstName.ToLower() + saved.LastName.ToLower(),
+                    Username = saved.Username,
                     Email = saved.Email,
                     Role = saved.Role
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(new { message = "Invalid request.", detail = ex.Message });
+                };
+
+                return Created($"/api/admin/users/{saved.Id}", result);
             }
             catch (DbUpdateException ex)
             {
-                return StatusCode(500, new { message = "A database error occurred.", detail = ex.Message });
+                // Pomogne pri debugu constraints-a
+                return StatusCode(400, new { message = "DB error", detail = ex.InnerException?.Message ?? ex.Message });
             }
             catch (Exception ex)
             {
@@ -105,14 +102,11 @@ namespace gozba_na_klik.Controllers.Admin
             }
         }
 
-        //GET za vlasnike restorana
-
         [HttpGet("owners")]
         public async Task<ActionResult<List<OwnerDto>>> GetOwners()
         {
             var owners = await _repository.GetOwnersAsync();
             return Ok(owners);
         }
-
     }
 }

@@ -1,7 +1,7 @@
-﻿using gozba_na_klik.Model;
+﻿using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Repository;
 
-namespace gozba_na_klik.Services
+namespace gozba_na_klik.Service.Implementations
 {
     public class UserAllergenService
     {

@@ -1,4 +1,4 @@
-﻿namespace gozba_na_klik.Model
+﻿namespace gozba_na_klik.Model.Entities
 {
     public class Restaurant
     {
