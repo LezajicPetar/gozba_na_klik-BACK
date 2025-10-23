@@ -6,11 +6,14 @@ namespace gozba_na_klik.Dtos.Users
     {
         [Range(0, 6)]
         public int DayOfWeek { get; set; }
-        [RegularExpression(@"^\d{2}:\d{2}$")]
+
+        [RegularExpression(@"^([01]\d|2[0-3]):([0-5]\d)$")]
         public string Start { get; set; } = default!;
-        [RegularExpression(@"^\d{2}:\d{2}$")]
+
+        [RegularExpression(@"^([01]\d|2[0-3]):([0-5]\d)$")]
         public string End { get; set; } = default!;
     }
+
     public class WeeklyScheduleUpsertRequestDto
     {
         [MinLength(7), MaxLength(7)]

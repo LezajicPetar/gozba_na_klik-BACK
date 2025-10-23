@@ -40,11 +40,10 @@ using gozba_na_klik.Service.Implementations;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<User>> LoginAsync([FromBody] LoginDto dto)
+    public async Task<ActionResult<AuthResponseDto>> LoginAsync([FromBody] LoginDto dto)
     {
-        var userDto = await _authService.LoginAsync(dto);
-
-        return userDto is null ? Unauthorized() : Ok(userDto);
+        var auth = await _authService.LoginAsync(dto);
+        return auth is null ? Unauthorized() : Ok(auth);
     }
 
     [HttpPost("logout")]
@@ -71,8 +70,8 @@ using gozba_na_klik.Service.Implementations;
         if (string.IsNullOrWhiteSpace(last) || last.Length > MaxNameLen)
             ModelState.AddModelError(nameof(dto.LastName), $"Obavezno polje (max {MaxNameLen} karaktera).");
 
-        if (string.IsNullOrWhiteSpace(username) || username.Length > MaxNameLen)
-            ModelState.AddModelError(nameof(dto.FirstName), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
+        if (string.IsNullOrWhiteSpace(username) || username.Length > MaxUsernameLen)
+            ModelState.AddModelError(nameof(dto.Username), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
 
         if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen ||! _rxEmail.IsMatch(email))
             ModelState.AddModelError(nameof(dto.Email), "Email nije validan.");

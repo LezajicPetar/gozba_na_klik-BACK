@@ -66,7 +66,6 @@ namespace gozba_na_klik.Data
                 e.HasKey(w => w.Id);
 
                 e.Property(w => w.DayOfWeek).IsRequired();
-                e.HasCheckConstraint("CK_WorkTime_DayOfWeek", "[DayOfWeek] >= 0 AND [DayOfWeek] <= 6");
 
                 e.Property(w => w.Start).HasColumnType("time without time zone");
                 e.Property(w => w.End).HasColumnType("time without time zone");
@@ -76,8 +75,11 @@ namespace gozba_na_klik.Data
                     .HasForeignKey(w => w.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // Jedan red po danu po korisniku
                 e.HasIndex(w => new { w.UserId, w.DayOfWeek }).IsUnique();
+
+                // Postgres sintaksa (bez []):
+                e.ToTable("WorkTimes", tb =>
+                    tb.HasCheckConstraint("CK_WorkTimes_DayOfWeek_Range", "\"DayOfWeek\" >= 0 AND \"DayOfWeek\" <= 6"));
             });
 
             //potencijalno treba povezati adresu sa restoranom

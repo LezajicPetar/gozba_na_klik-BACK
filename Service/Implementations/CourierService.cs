@@ -31,11 +31,10 @@ namespace gozba_na_klik.Service.Implementations
             _db = db;
         }
 
-        public async Task EnsureCourierAsync(int userId, string? vehileType = null, CancellationToken ct = default)
+        public async Task EnsureCourierAsync(int userId, string? vehicleType = null, CancellationToken ct = default)
         {
             var user = await _couriers.EnsureCourierRoleAsync(userId);
-
-            _ = user; _ = vehileType;
+            _ = user; _ = vehicleType;
         }
 
         public async Task<bool> ExistsAsync(int userId, CancellationToken ct = default)
@@ -98,14 +97,22 @@ namespace gozba_na_klik.Service.Implementations
 
         public async Task UpsertScheduleAsync(int userId, WeeklyScheduleUpsertRequestDto dto, CancellationToken ct = default)
         {
-            using var trx = await _db.Database.BeginTransactionAsync(ct);
+            await using var trx = await _db.Database.BeginTransactionAsync(ct);
 
-            var exists = await _couriers.ExistsByUserIdAsync(userId);
-            if (!exists)
+            if (!await _couriers.ExistsByUserIdAsync(userId))
                 throw new NotFoundException("Courier", userId);
 
             if (dto.Days is null || dto.Days.Count != 7)
                 throw new BadRequestException("Schedule mora imati tacno 7 dana (0..6).");
+
+            var dup = dto.Days.GroupBy(x => x.DayOfWeek).FirstOrDefault(g => g.Count() > 1);
+            if (dup != null)
+                throw new BadRequestException($"Duplikat za dan {dup.Key}. Dozvoljen je najvise jedan slot po danu.");
+
+            var expected = Enumerable.Range(0, 7).ToArray();
+            var actual = dto.Days.Select(x => x.DayOfWeek).OrderBy(x => x).ToArray();
+            if (!expected.SequenceEqual(actual))
+                throw new BadRequestException("Mora postojati po jedan zapis za svaki dan od 0 do 6.");
 
             double weekly = 0;
             foreach (var d in dto.Days)
@@ -113,8 +120,11 @@ namespace gozba_na_klik.Service.Implementations
                 if (d.DayOfWeek < 0 || d.DayOfWeek > 6)
                     throw new BadRequestException("DayOfWeek mora biti u intervalu 0..6.");
 
-                var s = TimeOnly.ParseExact(d.Start, "HH:mm", CultureInfo.InvariantCulture);
-                var e = TimeOnly.ParseExact(d.End, "HH:mm", CultureInfo.InvariantCulture);
+                if (!TimeOnly.TryParseExact(d.Start, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var s))
+                    throw new BadRequestException($"Nevalidan format vremena za dan {d.DayOfWeek}: Start='{d.Start}' (ocekujem HH:mm).");
+
+                if (!TimeOnly.TryParseExact(d.End, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var e))
+                    throw new BadRequestException($"Nevalidan format vremena za dan {d.DayOfWeek}: End='{d.End}' (očekujem HH:mm).");
 
                 if (s >= e)
                     throw new BadRequestException($"Start mora biti pre End za dan {d.DayOfWeek}.");
@@ -122,8 +132,10 @@ namespace gozba_na_klik.Service.Implementations
                 var daily = (e.ToTimeSpan() - s.ToTimeSpan()).TotalHours;
                 if (daily > MaxDailyHours)
                     throw new BadRequestException($"Dnevni broj sati ne sme biti veci od {MaxDailyHours} za dan {d.DayOfWeek}.");
+
                 weekly += daily;
             }
+
             if (weekly > MaxWeeklyHours)
                 throw new BadRequestException($"Nedeljni broj sati ne sme biti veci od {MaxWeeklyHours}.");
 
@@ -135,14 +147,14 @@ namespace gozba_na_klik.Service.Implementations
             {
                 var s = TimeOnly.ParseExact(d.Start, "HH:mm", CultureInfo.InvariantCulture);
                 var e = TimeOnly.ParseExact(d.End, "HH:mm", CultureInfo.InvariantCulture);
-                var wt = new WorkTime
+
+                _db.WorkTimes.Add(new WorkTime
                 {
                     UserId = userId,
                     DayOfWeek = d.DayOfWeek,
                     Start = s,
                     End = e
-                };
-                _db.WorkTimes.Add(wt);
+                });
             }
 
             await _db.SaveChangesAsync(ct);
@@ -163,7 +175,7 @@ namespace gozba_na_klik.Service.Implementations
                 return new CourierStatusResponseDto { Status = "Suspended", CheckedAtLocal = nowLocal };
             }
 
-            var dow = (int)nowLocal.DayOfWeek;
+            var dow = (int)nowLocal.DayOfWeek;     // Sunday=0 (Ned=0), bez ikakvog pomeraja
             var t = TimeOnly.FromDateTime(nowLocal);
 
             var wt = await _db.WorkTimes

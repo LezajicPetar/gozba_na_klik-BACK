@@ -5,8 +5,7 @@ namespace gozba_na_klik.Service.Interfaces
     public interface ICourierService
     {
         // Osnovne metode za rad sa kuririma
-        Task EnsureCourierAsync(int userId, string? vhicleType = null, CancellationToken ct = default);
-        Task<bool> ExistsAsync(int userId, CancellationToken ct = default);
+        Task EnsureCourierAsync(int userId, string? vehicleType = null, CancellationToken ct = default); Task<bool> ExistsAsync(int userId, CancellationToken ct = default);
         Task SuspendAsync(int userId, CancellationToken ct = default);
         Task UnsuspendAsync(int userId, CancellationToken ct = default);
 

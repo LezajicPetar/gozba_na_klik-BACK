@@ -14,7 +14,8 @@ namespace gozba_na_klik.Service.External
 
         public string Generate(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_cfg["Jwt:Key"]!));
+            var rawKey = _cfg["Jwt:Key"] ?? "dev-placeholder-key"; // fallback kao u Program.cs
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
