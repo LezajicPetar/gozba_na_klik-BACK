@@ -2,7 +2,7 @@
 
 namespace gozba_na_klik.Service
 {
-    public interface IRestaurantService
+    public interface IAdminRestaurantService
     {
         Task<IEnumerable<RestaurantDto>> GetAllAsync();
         Task<RestaurantDto> GetByIdAsync(int id);
