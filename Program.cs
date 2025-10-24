@@ -24,8 +24,11 @@ namespace gozba_na_klik
 
             builder.Services.AddControllers()
                 .AddJsonOptions(o =>
-                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
+                {
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
+                    
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
