@@ -7,6 +7,7 @@ using gozba_na_klik.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
@@ -43,12 +44,8 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
-            builder.Services.AddScoped<RestaurantRepository>();
-
-            builder.Services.AddAutoMapper(cfg =>
-            {
-                //cfg.AddProfile<MappingProfile>(); PRIMER ZA DODAVANJE PROFILA
-            });
+            builder.Services.AddScoped<Model.IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<OwnerRestaurantService>();
 
             var logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
@@ -95,6 +92,12 @@ namespace gozba_na_klik
             {
                 o.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
             });
+
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<Dtos.Profiles.RestaurantProfile>();
+            });
+
 
             var app = builder.Build();
 

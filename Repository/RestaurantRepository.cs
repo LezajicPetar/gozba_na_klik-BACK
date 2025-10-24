@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Repository
 {
-    public class RestaurantRepository
+    public class RestaurantRepository : IRestaurantRepository
     {
         private readonly GozbaDbContext _dbContext;
 
@@ -87,10 +87,21 @@ namespace gozba_na_klik.Repository
 
         public async Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex)
         {
-            await _dbContext.RestaurantExceptionDates.AddAsync(ex);
-            await _dbContext.SaveChangesAsync();
-            return ex;
+            try
+            {
+                await _dbContext.RestaurantExceptionDates.AddAsync(ex);
+                await _dbContext.SaveChangesAsync();
+                return ex;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("❌ DB ERROR: " + e.Message);
+                if (e.InnerException != null)
+                    Console.WriteLine("💥 INNER: " + e.InnerException.Message);
+                throw;
+            }
         }
+
 
         public async Task<bool> DeleteExceptionAsync(int exceptionId)
         {

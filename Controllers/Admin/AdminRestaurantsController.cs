@@ -11,21 +11,21 @@ namespace gozba_na_klik.Controllers.Admin
     [Route("api/admin/restaurants")]
     public class AdminRestaurantsController:ControllerBase
     {
-        private readonly RestaurantRepository _repository;
+        private readonly IRestaurantRepository _repository;
 
-        public AdminRestaurantsController(RestaurantRepository repository)
+        public AdminRestaurantsController(IRestaurantRepository repository)
         {
             _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<RestaurantDetailsDto>>> GetAll()
         {
             try
             {
                 var restaurants = await _repository.GetAllAsync();
 
-                var dtos = restaurants.Select(r => new RestaurantDto
+                var dtos = restaurants.Select(r => new RestaurantDetailsDto
                 {
                     Id = r.Id,
                     Name = r.Name,
@@ -50,7 +50,7 @@ namespace gozba_na_klik.Controllers.Admin
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RestaurantDto>> GetById(int id)
+        public async Task<ActionResult<RestaurantDetailsDto>> GetById(int id)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace gozba_na_klik.Controllers.Admin
                 if (restaurant == null)
                     return NotFound(new { message = $"Restaurant with ID {id} was not found." });
 
-                var dto = new RestaurantDto
+                var dto = new RestaurantDetailsDto
                 {
                     Id = restaurant.Id,
                     Name = restaurant.Name,
@@ -77,21 +77,19 @@ namespace gozba_na_klik.Controllers.Admin
 
         
         [HttpPost]
-        public async Task<ActionResult<RestaurantDto>> Create(RestaurantInputDto dto)
+        public async Task<ActionResult<RestaurantDetailsDto>> Create(RestaurantUpsertDto dto)
         {
             try
             {
                 var restaurant = new Restaurant
                 {
                     Name = dto.Name,
-                    OwnerId = dto.OwnerId,
-                    Photo = dto.Photo
                 };
 
                 var saved = await _repository.AddAsync(restaurant);
                 var withOwner = await _repository.GetByIdAsync(saved.Id);
 
-                var result = new RestaurantDto
+                var result = new RestaurantDetailsDto
                 {
                     Id = saved.Id,
                     Name = saved.Name,
@@ -114,7 +112,7 @@ namespace gozba_na_klik.Controllers.Admin
 
         
         [HttpPut("{id}")]
-        public async Task<ActionResult<RestaurantDto>> Update(int id, RestaurantInputDto dto)
+        public async Task<ActionResult<RestaurantDetailsDto>> Update(int id, RestaurantUpsertDto dto)
         {
             try
             {
@@ -123,13 +121,11 @@ namespace gozba_na_klik.Controllers.Admin
                     return NotFound(new { message = $"Restaurant with ID {id} was not found." });
 
                 restaurant.Name = dto.Name;
-                restaurant.OwnerId = dto.OwnerId;
-                restaurant.Photo = dto.Photo;
 
                 var updated = await _repository.UpdateAsync(restaurant);
                 var withOwner = await _repository.GetByIdAsync(id);
 
-                var result = new RestaurantDto
+                var result = new RestaurantDetailsDto
                 {
                     Id = updated.Id,
                     Name = updated.Name,

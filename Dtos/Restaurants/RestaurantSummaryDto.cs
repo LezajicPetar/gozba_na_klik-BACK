@@ -1,10 +1,10 @@
 ﻿namespace gozba_na_klik.Dtos.Restaurants
 {
-    public class RestaurantInputDto
+    public class RestaurantSummaryDto
     {
+        public int Id { get; set; }
         public string Name { get; set; } = default!;
-        public int OwnerId { get; set; }
         public string? Photo { get; set; }
-
+        public bool isPublished { get; set; } = false;
     }
 }
