@@ -44,6 +44,8 @@ namespace gozba_na_klik
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
             builder.Services.AddScoped<RestaurantRepository>();
+            builder.Services.AddScoped<AddressRepository>();
+            builder.Services.AddScoped<AddressService>();
 
             builder.Services.AddAutoMapper(cfg =>
             {
