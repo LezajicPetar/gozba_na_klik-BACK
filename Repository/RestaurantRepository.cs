@@ -1,103 +1,97 @@
 ﻿using gozba_na_klik.Data;
 using gozba_na_klik.Model;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Repository
 {
-    public class RestaurantRepository
+    public class RestaurantRepository : IRestaurantRepository
     {
-        private readonly GozbaDbContext _dbContext;
+        private readonly GozbaDbContext _db;
+        public RestaurantRepository(GozbaDbContext db) => _db = db;
 
-        public RestaurantRepository(GozbaDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        public async Task<IEnumerable<Restaurant>> GetAllAsync()
+            => await _db.Restaurants.ToListAsync();
 
-        public async Task<List<Restaurant>> GetAllAsync()
+        public async Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync()
+            => await _db.Restaurants.Include(r => r.Owner).ToListAsync();
+        public async Task<IEnumerable<Restaurant>> GetByOwnerAsync(int ownerId)
         {
-            return await _dbContext.Restaurants
+            return await _db.Restaurants
                 .Include(r => r.Owner)
+                .Where(r => r.OwnerId == ownerId)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<Restaurant?> GetByIdAsync(int id)
+            => await _db.Restaurants.FirstOrDefaultAsync(r => r.Id == id);
+
+        public async Task<Restaurant?> GetByIdWithOwnerAsync(int id)
+            => await _db.Restaurants.Include(r => r.Owner).FirstOrDefaultAsync(r => r.Id == id);
+
+        public async Task<Restaurant> CreateAsync(Restaurant entity)
         {
-            return await _dbContext.Restaurants
-                .Include(r => r.Owner)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            _db.Restaurants.Add(entity);
+            await _db.SaveChangesAsync();
+            return entity;
         }
 
-        public async Task<Restaurant> AddAsync(Restaurant restaurant)
+        public async Task<Restaurant> UpdateAsync(Restaurant entity)
         {
-            await _dbContext.Restaurants.AddAsync(restaurant);
-            await _dbContext.SaveChangesAsync();
-            return restaurant;
+            _db.Restaurants.Update(entity);
+            await _db.SaveChangesAsync();
+            return entity;
         }
 
-        public async Task<Restaurant?> UpdateAsync(Restaurant restaurant)
+        public async Task<Restaurant?> DeleteAsync(int id)
         {
-            _dbContext.Restaurants.Update(restaurant);
-            await _dbContext.SaveChangesAsync();
-            return restaurant;
+            var e = await _db.Restaurants.FindAsync(id);
+            if (e == null) return null;
+            _db.Restaurants.Remove(e);
+            await _db.SaveChangesAsync();
+            return e;
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var restaurant = await _dbContext.Restaurants.FindAsync(id);
-            if (restaurant == null)
-                return false;
-
-            _dbContext.Restaurants.Remove(restaurant);
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<Restaurant>> GetByOwnerAsync(int ownerId)
-        {
-            return await _dbContext.Restaurants
-                .Include(r => r.Owner)
-                .Where(r => r.OwnerId == ownerId)
-                .OrderBy(r =>  r.Name)
-                .ToListAsync();
-        }
-
+        //Work times
         public async Task<List<RestaurantWorkTime>> GetWorkTimesAsync(int restaurantId)
-        {
-            return await _dbContext.RestaurantWorkTimes
+            => await _db.RestaurantWorkTimes
                 .Where(w => w.RestaurantId == restaurantId)
                 .OrderBy(w => w.DayOfWeek)
                 .ToListAsync();
-        }
 
         public async Task SetWorkTimesAsync(int restaurantId, IEnumerable<RestaurantWorkTime> times)
         {
-            var existing = _dbContext.RestaurantWorkTimes.Where(w => w.RestaurantId == restaurantId);
-            _dbContext.RestaurantWorkTimes.RemoveRange(existing);
-            foreach (var t in times) { t.RestaurantId = restaurantId; _dbContext.RestaurantWorkTimes.Add(t); }
-            await _dbContext.SaveChangesAsync();
+            var existing = _db.RestaurantWorkTimes.Where(w => w.RestaurantId == restaurantId);
+            _db.RestaurantWorkTimes.RemoveRange(existing);
+            foreach (var t in times)
+            {
+                t.RestaurantId = restaurantId;
+                _db.RestaurantWorkTimes.Add(t);
+            }
+            await _db.SaveChangesAsync();
         }
 
+        //Exception dates
         public async Task<List<RestaurantExceptionDate>> GetExceptionsAsync(int restaurantId)
-        {
-            return await _dbContext.RestaurantExceptionDates
+            => await _db.RestaurantExceptionDates
                 .Where(e => e.RestaurantId == restaurantId)
                 .OrderBy(e => e.Date)
                 .ToListAsync();
-        }
 
         public async Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex)
         {
-            await _dbContext.RestaurantExceptionDates.AddAsync(ex);
-            await _dbContext.SaveChangesAsync();
+            await _db.RestaurantExceptionDates.AddAsync(ex);
+            await _db.SaveChangesAsync();
             return ex;
         }
 
+
         public async Task<bool> DeleteExceptionAsync(int exceptionId)
         {
-            var e = await _dbContext.RestaurantExceptionDates.FindAsync(exceptionId);
+            var e = await _db.RestaurantExceptionDates.FindAsync(exceptionId);
             if (e == null) return false;
-            _dbContext.RestaurantExceptionDates.Remove(e);
-            await _dbContext.SaveChangesAsync();
+            _db.RestaurantExceptionDates.Remove(e);
+            await _db.SaveChangesAsync();
             return true;
         }
 

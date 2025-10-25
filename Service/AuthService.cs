@@ -34,8 +34,7 @@ namespace gozba_na_klik.Service
         }
         public async Task<User?> RegisterUserAsync(User u)
         {
-            var user = await _userRepo.AddUserAsync(u);
-            
+            var user = await _userRepo.CreateAsync(u);
             return user;
         }
 
