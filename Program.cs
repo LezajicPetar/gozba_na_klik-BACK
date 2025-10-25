@@ -1,6 +1,9 @@
-
+using System.Text;
+using System.Text.Json.Serialization;
 using gozba_na_klik.Data;
+using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
+using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
 using gozba_na_klik.Services;
@@ -10,10 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
-using System.Text;
-using System.Text.Json.Serialization;
-
-
 
 namespace gozba_na_klik
 {
@@ -30,9 +29,36 @@ namespace gozba_na_klik
                     o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 });
                     
-                    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "Gozba Na Klik API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter a valid JWT token below. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+            });
 
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -43,11 +69,19 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
-            builder.Services.AddScoped<RestaurantRepository>();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRepository<User>, UserRepository>(); 
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<IRepository<Restaurant>, RestaurantRepository>();
+
+            builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+            builder.Services.AddScoped<IAdminRestaurantService, AdminRestaurantService>();
 
             builder.Services.AddAutoMapper(cfg =>
             {
-                //cfg.AddProfile<MappingProfile>(); PRIMER ZA DODAVANJE PROFILA
+                cfg.AddProfile<RestaurantProfile>();
+                cfg.AddProfile<UserProfile>();
             });
 
             var logger = new LoggerConfiguration()
