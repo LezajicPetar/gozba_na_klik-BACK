@@ -52,43 +52,46 @@ namespace gozba_na_klik.Repository
             return e;
         }
 
+        //Work times
         public async Task<List<RestaurantWorkTime>> GetWorkTimesAsync(int restaurantId)
-        {
-            return await _dbContext.RestaurantWorkTimes
+            => await _db.RestaurantWorkTimes
                 .Where(w => w.RestaurantId == restaurantId)
                 .OrderBy(w => w.DayOfWeek)
                 .ToListAsync();
-        }
 
         public async Task SetWorkTimesAsync(int restaurantId, IEnumerable<RestaurantWorkTime> times)
         {
-            var existing = _dbContext.RestaurantWorkTimes.Where(w => w.RestaurantId == restaurantId);
-            _dbContext.RestaurantWorkTimes.RemoveRange(existing);
-            foreach (var t in times) { t.RestaurantId = restaurantId; _dbContext.RestaurantWorkTimes.Add(t); }
-            await _dbContext.SaveChangesAsync();
+            var existing = _db.RestaurantWorkTimes.Where(w => w.RestaurantId == restaurantId);
+            _db.RestaurantWorkTimes.RemoveRange(existing);
+            foreach (var t in times)
+            {
+                t.RestaurantId = restaurantId;
+                _db.RestaurantWorkTimes.Add(t);
+            }
+            await _db.SaveChangesAsync();
         }
 
+        //Exception dates
         public async Task<List<RestaurantExceptionDate>> GetExceptionsAsync(int restaurantId)
-        {
-            return await _dbContext.RestaurantExceptionDates
+            => await _db.RestaurantExceptionDates
                 .Where(e => e.RestaurantId == restaurantId)
                 .OrderBy(e => e.Date)
                 .ToListAsync();
-        }
 
         public async Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex)
         {
-            await _dbContext.RestaurantExceptionDates.AddAsync(ex);
-            await _dbContext.SaveChangesAsync();
+            await _db.RestaurantExceptionDates.AddAsync(ex);
+            await _db.SaveChangesAsync();
             return ex;
         }
 
+
         public async Task<bool> DeleteExceptionAsync(int exceptionId)
         {
-            var e = await _dbContext.RestaurantExceptionDates.FindAsync(exceptionId);
+            var e = await _db.RestaurantExceptionDates.FindAsync(exceptionId);
             if (e == null) return false;
-            _dbContext.RestaurantExceptionDates.Remove(e);
-            await _dbContext.SaveChangesAsync();
+            _db.RestaurantExceptionDates.Remove(e);
+            await _db.SaveChangesAsync();
             return true;
         }
 
