@@ -18,6 +18,9 @@ namespace gozba_na_klik.Data
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<WorkTime> WorkTimes { get; set; }
         public DbSet<UserAllergen> UserAllergens { get; set; }
+        public DbSet<RestaurantWorkTime> RestaurantWorkTimes { get; set; }
+        public DbSet<RestaurantExceptionDate> RestaurantExceptionDates { get; set; }
+        
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
@@ -118,6 +121,18 @@ namespace gozba_na_klik.Data
                 e.Property(r => r.Phone).HasMaxLength(32);
                 e.Property(r => r.Photo).HasMaxLength(512);
             });
+            // radno vreme i neradni dani
+            modelBuilder.Entity<RestaurantWorkTime>()
+                .HasOne(w => w.Restaurant)
+                .WithMany(r => r.WorkTimes)
+                .HasForeignKey(w => w.RestaurantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RestaurantExceptionDate>()
+                .HasOne(e => e.Restaurant)
+                .WithMany(r => r.ExceptionDates)
+                .HasForeignKey(e => e.RestaurantId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<WorkTime>()

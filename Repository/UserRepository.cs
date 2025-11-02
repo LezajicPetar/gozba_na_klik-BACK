@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Repository
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly GozbaDbContext _dbContext;
 
@@ -15,12 +15,68 @@ namespace gozba_na_klik.Repository
             _dbContext = dbContext;
         }
 
+        #region CRUD
+        public async Task<IEnumerable<User>> GetAllAsync()
+
         #region USER
         public async Task<List<User>> GetAllAsync()
         {
             return await _dbContext.Users.ToListAsync();
         }
-  
+
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            return await _dbContext.Users
+                .Include(u => u.UserAllergens)
+                    .ThenInclude(ua => ua.Allergen)
+                .FirstOrDefaultAsync(u => u.Id == id);
+                    .Include(u => u.UserAllergens)
+                        .ThenInclude(ua => ua.Allergen)
+                    .Include(u => u.Addresses)
+                    .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User> CreateAsync(User entity)
+        {
+            if (string.IsNullOrWhiteSpace(entity.Username))
+            {
+                if (!string.IsNullOrWhiteSpace(entity.Email) && entity.Email.Contains("@"))
+                    entity.Username = entity.Email.Split('@')[0];
+                else
+                    entity.Username = (entity.FirstName + entity.LastName).ToLower();
+
+                if (string.IsNullOrWhiteSpace(entity.Username))
+                    entity.Username = "user" + Guid.NewGuid().ToString("N").Substring(0, 6);
+            }
+
+            await _dbContext.Users.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<User> UpdateAsync(User entity)
+        {
+            _dbContext.Users.Update(entity);
+            await _dbContext.SaveChangesAsync();
+
+            return (await _dbContext.Users
+                .Include(u => u.UserAllergens)
+                    .ThenInclude(ua => ua.Allergen)
+                .FirstOrDefaultAsync(u => u.Id == entity.Id))!;
+        }
+
+        public async Task<User?> DeleteAsync(int id)
+        {
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null) return null;
+
+            _dbContext.Users.Remove(user);
+            await _dbContext.SaveChangesAsync();
+            return user;
+        }
+        #endregion
+
+        #region CUSTOM Metode
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             return await _dbContext.Users.AnyAsync(u => u.Email == email);
@@ -35,72 +91,18 @@ namespace gozba_na_klik.Repository
         {
             return await _dbContext.Users
                     .Include(u => u.UserAllergens)
-                        .ThenInclude(ua => ua.Allergen)
-                    .Include(u => u.Addresses)
+                    .ThenInclude(ua => ua.Allergen)
                     .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<User> AddUserAsync(User user)
-        {
-            if (string.IsNullOrWhiteSpace(user.Username))
-            {
-                if (!string.IsNullOrWhiteSpace(user.Email) && user.Email.Contains("@"))
-                {
-                    user.Username = user.Email.Split('@')[0];
-                }
-                else
-                {
-                    user.Username = (user.FirstName + user.LastName).ToLower();
-                }
-
-                if (string.IsNullOrWhiteSpace(user.Username))
-                {
-                    user.Username = "user" + Guid.NewGuid().ToString("N").Substring(0, 6);
-                }
-            }
-
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-            return user;
-        }
-
-        public async Task<User?> UpdateUserAsync(User user)
-        {
-            _dbContext.Users.Update(user);
-            await _dbContext.SaveChangesAsync();
-
-            return await _dbContext.Users
-            .Include(u => u.UserAllergens)
-            .ThenInclude(ua => ua.Allergen)
-            .FirstOrDefaultAsync(u => u.Id == user.Id);
-        }
-
-        public async Task<User?> GetByIdAsync(int id)
-        {
-            return await _dbContext.Users
-                    .Include(u => u.UserAllergens)
-                    .ThenInclude(ua => ua.Allergen) 
-                    .FirstOrDefaultAsync(u => u.Id == id);
-        }
-
-        #endregion
-
-        #region OWNER
-
         //za dobavljanje vlasnika restorana
-        public async Task<List<OwnerDto>> GetOwnersAsync()
+        public async Task<IEnumerable<User>> GetOwnersAsync()
         {
             return await _dbContext.Users
                 .Where(u => u.Role == Role.RestaurantOwner)
-                .Select(u => new OwnerDto
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName
-                })
+                .AsNoTracking()
                 .ToListAsync();
         }
-
         #endregion
     }
 }

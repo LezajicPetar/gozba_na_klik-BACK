@@ -1,118 +1,53 @@
 ﻿using gozba_na_klik.Dtos.Users;
 using gozba_na_klik.DtosAdmin;
-using gozba_na_klik.Enums;
-using gozba_na_klik.Model;
-using gozba_na_klik.Repository;
+using gozba_na_klik.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Controllers.Admin
 {
     [Route("api/admin/users")]
     [ApiController]
-    //[Authorize(Roles = "Admin")] // odkomentariši kad dodaš auth
+    [Authorize(Roles = "Admin")]
     public class AdminUsersController : ControllerBase
     {
-        private readonly UserRepository _repository;
+        private readonly IAdminUserService _service;
+        private readonly ILogger<AdminUsersController> _logger;
 
-        public AdminUsersController(UserRepository repository)
+
+        public AdminUsersController(IAdminUserService service, ILogger<AdminUsersController> logger)
         {
-            _repository = repository;
+            _service = service;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AdminUserDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<AdminUserDto>>> GetAllAsync()
         {
-            try
-            {
-                var users = await _repository.GetAllAsync();
-
-                var dtos = users.Select(u => new AdminUserDto
-                {
-                    Id = u.Id,
-                    Username = u.FirstName + " " + u.LastName,
-                    Email = u.Email,
-                    Role = u.Role
-                });
-
-                return Ok(dtos);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(new { message = "Invalid request.", detail = ex.Message });
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, new { message = "A database error occurred.", detail = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
-            }
+            _logger.LogInformation("GET /api/admin/users");
+            var users = await _service.GetAllAsync();
+            _logger.LogInformation("Returned {Count} users", users.Count());
+            return Ok(users);
         }
 
         [HttpPost]
-        public async Task<ActionResult<AdminUserDto>> PostUsers(CreateUserDto dto)
+        public async Task<ActionResult<AdminUserDto>> CreateAsync([FromBody] CreateUserDto dto)
         {
-            try
-            {
-                if (dto.Password.Length < 6)
-                    return BadRequest(new { message = "Password should be at least 6 characters." });
-
-                var passwordPattern = @"^(?=.*[0-9])(?=.*[^a-zA-Z0-9]).+$";
-                if (!System.Text.RegularExpressions.Regex.IsMatch(dto.Password, passwordPattern))
-                    return BadRequest(new { message = "Password must contain at least one number and one special character." });
-
-                if (await _repository.ExistsByEmailAsync(dto.Email))
-                    return BadRequest(new { message = "The email already exists." });
-
-                if (await _repository.ExistsByNameAsync(dto.FirstName, dto.LastName))
-                    return BadRequest(new { message = "User with this name already exists." });
-
-                if (dto.Role != Role.Courier && dto.Role != Role.RestaurantOwner)
-                    return BadRequest(new { message = "The role should be set to Courier or RestaurantOwner." });
-
-                var user = new User
-                {
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Email = dto.Email,
-                    PasswordHash = dto.Password,
-                    Role = dto.Role
-                };
-
-                var saved = await _repository.AddUserAsync(user);
-
-                return Ok(new AdminUserDto
-                {
-                    Id = saved.Id,
-                    Username = saved.FirstName.ToLower() + saved.LastName.ToLower(),
-                    Email = saved.Email,
-                    Role = saved.Role
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(new { message = "Invalid request.", detail = ex.Message });
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, new { message = "A database error occurred.", detail = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
-            }
+            _logger.LogInformation("POST /api/admin/users with Email={Email}", dto.Email);
+            var createdUser = await _service.CreateAsync(dto);
+            _logger.LogInformation("Created user {Id}", createdUser.Id);
+            return Created("", createdUser);
         }
 
         //GET za vlasnike restorana
 
         [HttpGet("owners")]
-        public async Task<ActionResult<List<OwnerDto>>> GetOwners()
+        public async Task<ActionResult<IEnumerable<OwnerDto>>> GetOwnersAsync()
         {
-            var owners = await _repository.GetOwnersAsync();
+            _logger.LogInformation("GET /api/admin/users/owners");
+            var owners = await _service.GetOwnersAsync();
+            _logger.LogInformation("Returned {Count} restaurant owners", owners.Count());
             return Ok(owners);
         }
-
     }
 }

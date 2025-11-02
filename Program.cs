@@ -1,4 +1,5 @@
-
+using System.Text;
+using System.Text.Json.Serialization;
 using gozba_na_klik.Data;
 using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
@@ -13,10 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
-using System.Text;
-using System.Text.Json.Serialization;
-
-
 
 namespace gozba_na_klik
 {
@@ -28,21 +25,54 @@ namespace gozba_na_klik
 
             builder.Services.AddControllers()
                 .AddJsonOptions(o =>
-                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                {
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
+                    
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "Gozba Na Klik API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter a valid JWT token below. Example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+            });
 
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-            
+            //repozitorijumi i servisi
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
+          
+          //Vukasin
+            builder.Services.AddScoped<RestaurantRepository>();
             builder.Services.AddScoped<Repository.RestaurantRepository>();
             builder.Services.AddScoped<IRestaurantService, RestaurantService>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
@@ -50,9 +80,30 @@ namespace gozba_na_klik
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
+            builder.Services.AddScoped<AddressRepository>();
+            builder.Services.AddScoped<AddressService>();
 
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRepository<User>, UserRepository>();
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<IRepository<Restaurant>, RestaurantRepository>();
+
+            // Servisi po ulogama
+            builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+            builder.Services.AddScoped<IAdminRestaurantService, AdminRestaurantService>();
+            builder.Services.AddScoped<IOwnerRestaurantService, OwnerRestaurantService>();
+
+            // AutoMapper profili
             builder.Services.AddAutoMapper(cfg =>
             {
+                // Admin koristi Mapping.RestaurantProfile
+                cfg.AddProfile<RestaurantProfile>();
+
+                // Owner koristi Dtos.Profiles.RestaurantProfile
+                cfg.AddProfile<Dtos.Profiles.RestaurantProfile>();
+
+                // Korisnici
+                cfg.AddProfile<UserProfile>();
                 cfg.AddProfile<RestaurantProfile>(); //PRIMER ZA DODAVANJE PROFILA
                 cfg.AddProfile<MenuItemProfile>();
                 cfg.AddProfile<OrderProfile>();
