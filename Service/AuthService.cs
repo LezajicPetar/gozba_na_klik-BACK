@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.Data;
+﻿using AutoMapper;
+using gozba_na_klik.Data;
 using gozba_na_klik.Dtos;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Model;
@@ -12,10 +13,12 @@ namespace gozba_na_klik.Service
     public class AuthService
     {
         private readonly UserRepository _userRepo;
+        private readonly IMapper _mapper;
 
-        public AuthService(UserRepository userRepo)
+        public AuthService(UserRepository userRepo, IMapper mapper)
         {
             _userRepo = userRepo;
+            _mapper = mapper;
         }
 
         public async Task<UserDto?> LoginAsync(LoginDto dto)
@@ -23,8 +26,9 @@ namespace gozba_na_klik.Service
             var user = await _userRepo.GetByEmailAsync(dto.Email);
 
             //VALIDACIJA ZA PASSWORD OVDE IDE
+            var userDto = _mapper.Map<UserDto>(user);
 
-            return user is null ? null : UserDto.createDto(user);
+            return user is null ? null : userDto;
         }
         public async Task<User?> GetByEmailAsync(string email)
         {

@@ -156,8 +156,8 @@ namespace gozba_na_klik.Controllers.Admin
         {
             try
             {
-                var success = await _repository.DeleteAsync(id);
-                if (!success)
+                var restaurant = await _repository.DeleteAsync(id);
+                if (restaurant == null)
                     return NotFound(new { message = $"Restaurant with ID {id} was not found." });
 
                 return NoContent();

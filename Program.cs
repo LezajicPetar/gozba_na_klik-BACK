@@ -1,12 +1,15 @@
 
 using gozba_na_klik.Data;
+using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
+using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
 using gozba_na_klik.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
@@ -40,12 +43,22 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
-            builder.Services.AddScoped<RestaurantRepository>();
+            builder.Services.AddScoped<Repository.RestaurantRepository>();
+            builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+
 
             builder.Services.AddAutoMapper(cfg =>
             {
-                //cfg.AddProfile<MappingProfile>(); PRIMER ZA DODAVANJE PROFILA
+                cfg.AddProfile<RestaurantProfile>(); //PRIMER ZA DODAVANJE PROFILA
+                cfg.AddProfile<MenuItemProfile>();
+                cfg.AddProfile<OrderProfile>();
+                cfg.AddProfile<UserProfile>();
             });
+
 
             var logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)

@@ -1,4 +1,6 @@
-﻿namespace gozba_na_klik.Model
+﻿using System.Text.Json.Serialization;
+
+namespace gozba_na_klik.Model
 {
     public class Address
     {
@@ -7,6 +9,7 @@
         public int HouseNumber { get; set; }
         public string City { get; set; }
 
+        [JsonIgnore]
         public User User { get; set; }
         public int UserId { get; set; }
     }

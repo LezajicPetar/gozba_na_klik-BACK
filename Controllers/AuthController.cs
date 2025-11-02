@@ -40,7 +40,7 @@ using gozba_na_klik.Dtos;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<User>> LoginAsync([FromBody] LoginDto dto)
+    public async Task<ActionResult<UserDto>> LoginAsync([FromBody] LoginDto dto)
     {
         var userDto = await _authService.LoginAsync(dto);
 

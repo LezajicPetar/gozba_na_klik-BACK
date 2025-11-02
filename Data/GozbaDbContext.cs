@@ -18,13 +18,73 @@ namespace gozba_na_klik.Data
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<WorkTime> WorkTimes { get; set; }
         public DbSet<UserAllergen> UserAllergens { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // User: unique email + role kao string + hash lozinke
+            #region PORUDZBINA
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Subtotal)
+                .HasColumnType("numeric(12,2)");
 
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Total)
+                .HasColumnType("numeric(12,2)");
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.DeliveryFee)
+                .HasColumnType("numeric(12,2)");
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(i => i.Price)
+                .HasColumnType("numeric(12,2)");
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Order>()
+               .HasOne(o => o.Restaurant)
+               .WithMany()
+               .HasForeignKey(o => o.RestaurantId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany()
+                .HasForeignKey(o => o.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Courier)
+                .WithMany()
+                .HasForeignKey(o => o.CourierId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Address)
+                .WithMany()
+                .HasForeignKey(o => o.AddressId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Items)
+                .WithOne(i => i.Order)
+                .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            modelBuilder.Entity<MenuItem>()
+                .HasOne(mi => mi.Restaurant)
+                .WithMany(r => r.Menu)
+                .HasForeignKey(mi => mi.RestaurantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
             modelBuilder.Entity<User>(e =>
             {
                 e.Property(u => u.FirstName).HasMaxLength(35).IsRequired();
