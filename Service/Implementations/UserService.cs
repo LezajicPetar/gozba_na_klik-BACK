@@ -40,7 +40,7 @@ namespace gozba_na_klik.Service.Implementations
 
             await _userAllergenRepository.ReplaceUserAllergens(user, newUserAllergens);
 
-            return await _userRepository.UpdateUserAsync(user);
+            return await _userRepository.UpdateAsync(user);
         }
     }
 }

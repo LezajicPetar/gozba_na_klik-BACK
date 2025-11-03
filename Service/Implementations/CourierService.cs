@@ -4,6 +4,7 @@ using gozba_na_klik.Dtos.Users;
 using gozba_na_klik.Enums;
 using gozba_na_klik.Exceptions;
 using gozba_na_klik.Model.Entities;
+using gozba_na_klik.Model.Entities.Orders;
 using gozba_na_klik.Model.Interfaces;
 using gozba_na_klik.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -61,8 +62,8 @@ namespace gozba_na_klik.Service.Implementations
         }
 
 
-        // Raspored (WorkTime) kurira
-        public async Task<WeeklyScheduleResponseDto> GetScheduleAsync(int userId, CancellationToken ct = default )
+        // Raspored (WorkTime) kurira AZ
+        public async Task<WeeklyScheduleResponseDto> GetScheduleAsync(int userId, CancellationToken ct = default)
         {
             var exists = await _couriers.ExistsByUserIdAsync(userId);
             if (!exists)
@@ -161,7 +162,7 @@ namespace gozba_na_klik.Service.Implementations
             await trx.CommitAsync(ct);
         }
 
-        // Status kurira
+        // Status kurira AZ
 
         public async Task<CourierStatusResponseDto> GetStatusNowAsync(int userId, CancellationToken ct = default)
         {
@@ -180,7 +181,7 @@ namespace gozba_na_klik.Service.Implementations
 
             var wt = await _db.WorkTimes
                 .Where(w => w.UserId == userId && w.DayOfWeek == dow)
-                .Select(w => new {w.Start, w.End})
+                .Select(w => new { w.Start, w.End })
                 .FirstOrDefaultAsync(ct);
 
             var active = wt != null && t >= wt.Start && t < wt.End;
@@ -188,8 +189,68 @@ namespace gozba_na_klik.Service.Implementations
             return new CourierStatusResponseDto
             {
                 Status = active ? "Active" : "Inactive",
+                IsBusy = user.IsBusy,
+                CurrentOrderId = user.CurrentOrderId,
                 CheckedAtLocal = nowLocal,
             };
+        }
+
+        // Metode vezane za isporuke AZ
+        public async Task StartDeliveryAsync(int userId, int orderId, CancellationToken ct = default)
+        {
+            await using var trx = await _db.Database.BeginTransactionAsync(ct);
+
+            var courier = await _db.Users
+                .FirstOrDefaultAsync(u => u.Id == userId && u.Role == Role.Courier, ct)
+                ?? throw new NotFoundException("Courier", userId);
+
+            if (courier.IsSuspended) throw new ForbiddenException("Kurir je suspendovan.");
+            if (courier.IsBusy && courier.CurrentOrderId != orderId)
+                throw new ConflictException("Kurir je zauzet drugom isporukom.");
+
+            var order = await _db.Set<Order>()
+                .FirstOrDefaultAsync(o => o.Id == orderId, ct)
+                ?? throw new NotFoundException("Order", orderId);
+
+            if (order.CourierId != courier.Id)
+                throw new BadRequestException("Niste dodeljeni ovoj porudzbini.");
+
+            if (order.Status != OrderStatus.PREUZIMANJE_U_TOKU && order.Status != OrderStatus.PRIHVACENA)
+                throw new BadRequestException("Porudzbina nije u stanju za preuzimanje.");
+
+            order.Status = OrderStatus.DOSTAVA_U_TOKU;
+            courier.IsBusy = true;
+            courier.CurrentOrderId = order.Id;
+
+            await _db.SaveChangesAsync(ct);
+            await trx.CommitAsync(ct);
+        }
+        public async Task FinishedDeliveryAsync(int userId, int orderId, CancellationToken ct = default)
+        {
+            await using var trx = await _db.Database.BeginTransactionAsync(ct);
+
+            var courier = await _db.Users
+                .FirstOrDefaultAsync(u => u.Id == userId && u.Role == Role.Courier, ct)
+                ?? throw new NotFoundException("Courier", userId);
+
+            var order = await _db.Set<Order>()
+                .FirstOrDefaultAsync(o => o.Id == orderId, ct)
+                ?? throw new NotFoundException("Order", orderId);
+
+            if (order.CourierId != courier.Id)
+                throw new BadRequestException("Niste dodeljeni ovoj porudzbini.");
+
+            if (order.Status != OrderStatus.DOSTAVA_U_TOKU)
+                throw new BadRequestException("Porudzbina nije u stanju za dostave.");
+
+            order.Status = OrderStatus.ZAVRSENA;
+
+            // Otkljucaj kurira AZ
+            courier.IsBusy = false;
+            courier.CurrentOrderId = null;
+
+            await _db.SaveChangesAsync(ct);
+            await trx.CommitAsync(ct);
         }
     }
 }

@@ -28,6 +28,8 @@ namespace gozba_na_klik.Dtos.Users
     public class  CourierStatusResponseDto
     {
         public string Status { get; set; } = "Inactive"; // Active, Inactive i Suspended
+        public bool IsBusy { get; set; } // AZ
+        public int? CurrentOrderId { get; set; } // AZ
         public DateTime CheckedAtLocal { get; set; }
         public string TimeZone { get; set; } = "Europe/Belgrade";
     }

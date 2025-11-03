@@ -3,48 +3,38 @@ using gozba_na_klik.Dtos;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Repository;
-using gozba_na_klik.Service.External;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
 
-namespace gozba_na_klik.Service.Implementations
+namespace gozba_na_klik.Service
 {
     public class AuthService
     {
         private readonly UserRepository _userRepo;
-        private readonly TokenService _tokenService;
 
-        public AuthService(UserRepository userRepo, TokenService tokenService)
+        public AuthService(UserRepository userRepo)
         {
             _userRepo = userRepo;
-            _tokenService = tokenService;
         }
 
-        public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+        public async Task<UserDto?> LoginAsync(LoginDto dto)
         {
             var user = await _userRepo.GetByEmailAsync(dto.Email);
-            if (user is null) return null;
 
-            // verifikacija lozinke
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return null;
+            //VALIDACIJA ZA PASSWORD OVDE IDE
 
-            var token = _tokenService.Generate(user);
-            var userDto = UserDto.createDto(user);
-
-            return new AuthResponseDto { Token = token, User = userDto };
+            return user is null ? null : UserDto.createDto(user);
         }
-
         public async Task<User?> GetByEmailAsync(string email)
         {
-            // BUG FIX: pre je uvek vraćao null
-            return await _userRepo.GetByEmailAsync(email);
+            var user = await _userRepo.GetByEmailAsync(email);
+
+            return null;
         }
         public async Task<User?> RegisterUserAsync(User u)
         {
-            var user = await _userRepo.AddUserAsync(u);
-
+            var user = await _userRepo.CreateAsync(u);
             return user;
         }
 

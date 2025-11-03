@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gozba_na_klik.Data;
@@ -11,9 +12,11 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    partial class GozbaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251020115200_AddRestaurantScheduleAndExceptions")]
+    partial class AddRestaurantScheduleAndExceptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace gozba_na_klik.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.Address", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,7 +54,7 @@ namespace gozba_na_klik.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.Allergen", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.Allergen", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,7 +113,7 @@ namespace gozba_na_klik.Migrations
                         });
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.Restaurant", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.Restaurant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,7 +205,7 @@ namespace gozba_na_klik.Migrations
                     b.ToTable("RestaurantWorkTimes");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.User", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,11 +222,6 @@ namespace gozba_na_klik.Migrations
                         .IsRequired()
                         .HasMaxLength(35)
                         .HasColumnType("character varying(35)");
-
-                    b.Property<bool>("IsSuspended")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -259,9 +257,8 @@ namespace gozba_na_klik.Migrations
                             Id = 1,
                             Email = "admin1@gozba.com",
                             FirstName = "Admin",
-                            IsSuspended = false,
                             LastName = "One",
-                            PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                             Role = "Admin",
                             Username = "Admin1"
                         },
@@ -270,9 +267,8 @@ namespace gozba_na_klik.Migrations
                             Id = 2,
                             Email = "admin2@gozba.com",
                             FirstName = "Admin",
-                            IsSuspended = false,
                             LastName = "Two",
-                            PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                             Role = "Admin",
                             Username = "Admin2"
                         },
@@ -281,15 +277,14 @@ namespace gozba_na_klik.Migrations
                             Id = 3,
                             Email = "admin3@gozba.com",
                             FirstName = "Admin",
-                            IsSuspended = false,
                             LastName = "Three",
-                            PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
                             Role = "Admin",
                             Username = "Admin3"
                         });
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.UserAllergen", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.UserAllergen", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -304,7 +299,7 @@ namespace gozba_na_klik.Migrations
                     b.ToTable("UserAllergens");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.WorkTime", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.WorkTime", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -312,32 +307,19 @@ namespace gozba_na_klik.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("integer");
-
-                    b.Property<TimeOnly>("End")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<TimeOnly>("Start")
-                        .HasColumnType("time without time zone");
-
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "DayOfWeek")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
-                    b.ToTable("WorkTimes", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_WorkTimes_DayOfWeek_Range", "\"DayOfWeek\" >= 0 AND \"DayOfWeek\" <= 6");
-                        });
+                    b.ToTable("WorkTimes");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.Address", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.Address", b =>
                 {
-                    b.HasOne("gozba_na_klik.Model.Entities.User", "User")
+                    b.HasOne("gozba_na_klik.Model.User", "User")
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -346,9 +328,9 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.Restaurant", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.Restaurant", b =>
                 {
-                    b.HasOne("gozba_na_klik.Model.Entities.User", "Owner")
+                    b.HasOne("gozba_na_klik.Model.User", "Owner")
                         .WithMany("Restaurants")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -379,15 +361,15 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("Restaurant");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.UserAllergen", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.UserAllergen", b =>
                 {
-                    b.HasOne("gozba_na_klik.Model.Entities.Allergen", "Allergen")
+                    b.HasOne("gozba_na_klik.Model.Allergen", "Allergen")
                         .WithMany("UserAllergens")
                         .HasForeignKey("AllergenId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("gozba_na_klik.Model.Entities.User", "User")
+                    b.HasOne("gozba_na_klik.Model.User", "User")
                         .WithMany("UserAllergens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -398,9 +380,9 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.WorkTime", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.WorkTime", b =>
                 {
-                    b.HasOne("gozba_na_klik.Model.Entities.User", "User")
+                    b.HasOne("gozba_na_klik.Model.User", "User")
                         .WithMany("WorkTimes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -409,7 +391,7 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.Allergen", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.Allergen", b =>
                 {
                     b.Navigation("UserAllergens");
                 });
@@ -421,7 +403,7 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("WorkTimes");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Entities.User", b =>
+            modelBuilder.Entity("gozba_na_klik.Model.User", b =>
                 {
                     b.Navigation("Addresses");
 

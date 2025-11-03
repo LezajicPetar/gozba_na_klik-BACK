@@ -14,6 +14,12 @@ namespace gozba_na_klik.Model.Entities
         public Role Role { get; set; } = Role.Customer;
         public bool IsSuspended { get; set; } = false;
 
+
+        // Status kurira AZ
+        public bool isActive { get; set; } = true;
+        public bool IsBusy { get; set; } = false;
+        public int? CurrentOrderId { get; set; }
+
         public string? ProfilePicture { get; set; }
 
         public ICollection<Address>? Addresses { get; set; }

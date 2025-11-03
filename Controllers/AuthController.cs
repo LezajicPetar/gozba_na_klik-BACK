@@ -1,15 +1,19 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BCrypt.Net;
 using gozba_na_klik.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
-using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Dtos;
+using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Service.External;
-using gozba_na_klik.Service.Implementations;
+using gozba_na_klik.Service;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 
 
@@ -19,6 +23,7 @@ using gozba_na_klik.Service.Implementations;
     {
     private readonly TokenService _tokenService;
     private readonly AuthService _authService;
+    private readonly IConfiguration _configuration;
 
     // Password politika
     private const int MinPasswordLen = 8;
@@ -33,10 +38,11 @@ using gozba_na_klik.Service.Implementations;
     private static readonly Regex _rxEmail = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
 
-    public AuthController(TokenService tokenService, AuthService authService)
+    public AuthController(TokenService tokenService, AuthService authService, IConfiguration configuration)
     {
         _tokenService = tokenService;
         _authService = authService;
+        _configuration = configuration;
     }
 
     [HttpPost("login")]
@@ -122,4 +128,36 @@ using gozba_na_klik.Service.Implementations;
 
         return Ok(new AuthResponseDto { Token = token, User = userDto });
     }
+
+    [HttpGet("admin-token")]
+    public IActionResult GetAdminToken()
+    {
+        var key = _configuration["Jwt:Key"];
+        var issuer = _configuration["Jwt:Issuer"];
+        var audience = _configuration["Jwt:Audience"];
+
+        var claims = new[]
+        {
+        new Claim(ClaimTypes.NameIdentifier, "1"),
+        new Claim(ClaimTypes.Email, "admin@gozba.com"),
+        new Claim(ClaimTypes.Role, "Admin")
+    };
+
+        var creds = new SigningCredentials(
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+            SecurityAlgorithms.HmacSha256
+        );
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(2),
+            signingCredentials: creds
+        );
+
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        return Ok(new { token = tokenString });
+    }
+
 }

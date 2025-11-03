@@ -16,5 +16,9 @@ namespace gozba_na_klik.Service.Interfaces
         // Status kurira
         Task<CourierStatusResponseDto> GetStatusNowAsync(int userId, CancellationToken ct = default);
 
+        // Metode vezane za isporuke AZ
+        Task StartDeliveryAsync(int userId, int orderId, CancellationToken ct = default);
+        Task FinishedDeliveryAsync(int userId, int orderId, CancellationToken ct = default);
+
     }
 }
