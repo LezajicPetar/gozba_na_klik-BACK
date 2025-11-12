@@ -17,9 +17,9 @@ namespace gozba_na_klik.Controllers
         private readonly IMapper _mapper;
 
         private static readonly string[] Allowed = new[] { "image/jpeg", "image/png" };
-        
+
         public UsersController(
-            GozbaDbContext db, 
+            GozbaDbContext db,
             IWebHostEnvironment env,
             UserService userService,
             IMapper mapper)
@@ -38,8 +38,8 @@ namespace gozba_na_klik.Controllers
             if (updatedUser is null)
                 return NotFound();
 
-            var userDto =  _mapper.Map<UserDto>(updatedUser);
-            
+            var userDto = _mapper.Map<UserDto>(updatedUser);
+
             return Ok(userDto);
         }
 
@@ -51,7 +51,7 @@ namespace gozba_na_klik.Controllers
         {
             if (file == null || file.Length == 0) return BadRequest("Fajl je obavezan. ");
             if (!Allowed.Contains(file.ContentType)) return BadRequest("Dozvoljeni format: .jpg, .png ");
-            
+
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null) return NotFound();
 

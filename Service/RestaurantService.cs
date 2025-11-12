@@ -59,6 +59,7 @@ namespace gozba_na_klik.Service
 
             _logger.LogInformation("Menu item {MenuItemId} deleted successfully from restaurant {RestaurantId}.", menuItemId, restaurantId);
         }
+
         public async Task<UpdateMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item)
         {
             _logger.LogInformation("Updating menu item: {Name} for restaurant {RestaurantId}", item.Name, restaurantId);

@@ -1,5 +1,4 @@
 ﻿using gozba_na_klik.Data;
-using gozba_na_klik.Dtos;
 using gozba_na_klik.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +10,14 @@ namespace gozba_na_klik.Repository
         public RestaurantRepository(GozbaDbContext db) => _db = db;
 
         public async Task<IEnumerable<Restaurant>> GetAllAsync()
-            => await _db.Restaurants.ToListAsync();
+        {
+            return await _db.Restaurants.Include(r => r.Menu).ToListAsync();
+        }
 
         public async Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync()
             => await _db.Restaurants.Include(r => r.Owner).ToListAsync();
-        public async Task<IEnumerable<Restaurant>> GetByOwnerAsync(int ownerId)
-        public async Task<IEnumerable<Restaurant>> GetAllAsync()
+
+        public async Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId)
         {
             return await _db.Restaurants
                 .Include(r => r.Owner)
@@ -37,10 +38,6 @@ namespace gozba_na_klik.Repository
             _db.Restaurants.Add(entity);
             await _db.SaveChangesAsync();
             return entity;
-            return await _dbContext.Restaurants
-                .Include(r => r.Owner)
-                .Include(r => r.Menu)
-                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
         public async Task<Restaurant> UpdateAsync(Restaurant entity)
@@ -67,7 +64,6 @@ namespace gozba_na_klik.Repository
                 .ToListAsync();
 
         public async Task SetWorkTimesAsync(int restaurantId, IEnumerable<RestaurantWorkTime> times)
-        public async Task<Restaurant?> DeleteAsync(int id)
         {
             var existing = _db.RestaurantWorkTimes.Where(w => w.RestaurantId == restaurantId);
             _db.RestaurantWorkTimes.RemoveRange(existing);
@@ -85,54 +81,39 @@ namespace gozba_na_klik.Repository
                 .Where(e => e.RestaurantId == restaurantId)
                 .OrderBy(e => e.Date)
                 .ToListAsync();
-            var restaurant = await _dbContext.Restaurants.FindAsync(id);
 
         public async Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex)
         {
             await _db.RestaurantExceptionDates.AddAsync(ex);
             await _db.SaveChangesAsync();
             return ex;
-            if (restaurant == null) return null;
-
-
-            _dbContext.Restaurants.Remove(restaurant);
-            await _dbContext.SaveChangesAsync();
-
-            return restaurant;
         }
 
-
         public async Task<bool> DeleteExceptionAsync(int exceptionId)
-        public async Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId)
         {
             var e = await _db.RestaurantExceptionDates.FindAsync(exceptionId);
             if (e == null) return false;
             _db.RestaurantExceptionDates.Remove(e);
             await _db.SaveChangesAsync();
             return true;
-            return await _dbContext.Restaurants
-                .Include(r => r.Owner)
-                .Include(r => r.Menu)
-                .Where(r => r.OwnerId == ownerId)
-                .OrderBy(r => r.Name)
-                .ToListAsync();
         }
+
 
         public async Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId)
         {
-            var menuItem = await _dbContext.MenuItems
+            var menuItem = await _db.MenuItems
                 .FirstOrDefaultAsync(m => m.Id == menuItemId && m.RestaurantId == restaurantId);
 
             if (menuItem == null) return false;
 
-            _dbContext.MenuItems.Remove(menuItem);
+            _db.MenuItems.Remove(menuItem);
 
-            await _dbContext.SaveChangesAsync();
+            await _db.SaveChangesAsync();
             return true;
         }
         public async Task<MenuItem?> UpdateMenuItemAsync(int restaurantId, MenuItem item)
         {
-            var existing = await _dbContext.MenuItems
+            var existing = await _db.MenuItems
                    .FirstOrDefaultAsync(m => m.Id == item.Id && m.RestaurantId == restaurantId);
 
             if (existing == null) return null;
@@ -144,13 +125,9 @@ namespace gozba_na_klik.Repository
                 ? existing.PhotoPath
                 : item.PhotoPath;
 
-            await _dbContext.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             return existing;
-        }
-        public async Task<Restaurant> CreateAsync(Restaurant rest)
-        {
-            throw new NotImplementedException();
         }
     }
 }

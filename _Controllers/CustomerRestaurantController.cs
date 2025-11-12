@@ -9,7 +9,7 @@ namespace gozba_na_klik.Controllers
     public class CustomerRestaurantController : Controller
     {
         private readonly IRestaurantService _restaurantService;
-        
+
 
         public CustomerRestaurantController(IRestaurantService restaurantService)
         {

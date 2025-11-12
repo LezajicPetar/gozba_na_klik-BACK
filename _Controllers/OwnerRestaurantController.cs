@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.Dtos.Restaurants;
+﻿using gozba_na_klik.Dtos.MenuItems;
+using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Model;
 using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,32 @@ namespace gozba_na_klik.Controllers.OwnerArea
         }
 
 
+        [HttpPut("{restaurantId}/menu/{menuItemId}")]
+        public async Task<ActionResult<UpdateMenuItemDto>> UpdateMenuItemAsync(int restaurantId, [FromBody] UpdateMenuItemDto item)
+        {
+            _logger.LogInformation("HTTP PUT /api/owner/restaurants/{restaurantId}/menu/{menuItemId} triggered.", restaurantId, item.Id);
+
+            var updated = await _service.UpdateMenuItemAsync(restaurantId, item);
+
+            _logger.LogInformation("HTTP PUT /api/owner/restaurants/{restaurantId}/menu/{menuItemId} completed.", restaurantId, item.Id);
+
+            return Ok(updated);
+        }
+
+        [HttpDelete("{restaurantId}/menu/{menuItemId}")]
+        public async Task<ActionResult> DeleteMenuItemAsync(int restaurantId, int menuItemId)
+        {
+            _logger.LogInformation("HTTP DELETE /api/owner/restaurants/{restaurantId}/menu/{menuItemId} triggered.", restaurantId, menuItemId);
+
+            await _service.DeleteMenuItemAsync(restaurantId, menuItemId);
+
+            _logger.LogInformation("HTTP DELETE /api/owner/restaurants/{restaurantId}/menu/{menuItemId} completed.", restaurantId, menuItemId);
+
+            return NoContent();
+        }
+
+
+
 
         [HttpPut("~/api/restaurants/{id:int}/general")]
         public async Task<ActionResult<RestaurantDetailsDto>> UpdateGeneral(
@@ -36,7 +63,6 @@ namespace gozba_na_klik.Controllers.OwnerArea
             return Ok(updated);
         }
 
-
         [HttpPost("~/api/restaurants/{id:int}/cover")]
         [RequestSizeLimit(10_000_000)]
         [Consumes("multipart/form-data")]
@@ -45,7 +71,6 @@ namespace gozba_na_klik.Controllers.OwnerArea
             var url = await _service.UpdateCoverAsync(id, ownerId, file);
             return Ok(new { coverUrl = url });
         }
-
 
         [HttpGet("~/api/restaurants/{id:int}/schedule")]
         public async Task<ActionResult<IEnumerable<RestaurantWorkTimeDto>>> GetSchedule(int id, [FromQuery] int ownerId)
@@ -61,14 +86,12 @@ namespace gozba_na_klik.Controllers.OwnerArea
             return NoContent();
         }
 
-
         [HttpGet("~/api/restaurants/{id:int}/exceptions")]
         public async Task<ActionResult<IEnumerable<RestaurantExceptionDto>>> GetExceptions(int id, [FromQuery] int ownerId)
         {
             var ex = await _service.GetExceptionsAsync(id, ownerId);
             return Ok(ex);
         }
-
 
         [HttpPost("~/api/restaurants/{id:int}/exceptions")]
         public async Task<ActionResult<RestaurantExceptionDto>> AddException(int id, [FromQuery] int ownerId, [FromBody] RestaurantExceptionDto dto)

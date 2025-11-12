@@ -19,8 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 
 [ApiController]
 [Route("api/[controller]")]
-    public class AuthController : ControllerBase
-    {
+public class AuthController : ControllerBase
+{
     private readonly TokenService _tokenService;
     private readonly AuthService _authService;
     private readonly IConfiguration _configuration;
@@ -80,7 +80,7 @@ using Microsoft.IdentityModel.Tokens;
         if (string.IsNullOrWhiteSpace(username) || username.Length > MaxNameLen)
             ModelState.AddModelError(nameof(dto.FirstName), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
 
-        if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen ||! _rxEmail.IsMatch(email))
+        if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen || !_rxEmail.IsMatch(email))
             ModelState.AddModelError(nameof(dto.Email), "Email nije validan.");
 
         if (password.Length < MinPasswordLen || password.Length > MaxPasswordLen)

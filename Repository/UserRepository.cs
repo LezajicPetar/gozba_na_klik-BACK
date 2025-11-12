@@ -17,9 +17,6 @@ namespace gozba_na_klik.Repository
 
         #region CRUD
         public async Task<IEnumerable<User>> GetAllAsync()
-
-        #region USER
-        public async Task<List<User>> GetAllAsync()
         {
             return await _dbContext.Users.ToListAsync();
         }
@@ -29,11 +26,8 @@ namespace gozba_na_klik.Repository
             return await _dbContext.Users
                 .Include(u => u.UserAllergens)
                     .ThenInclude(ua => ua.Allergen)
+                .Include(u => u.Addresses)
                 .FirstOrDefaultAsync(u => u.Id == id);
-                    .Include(u => u.UserAllergens)
-                        .ThenInclude(ua => ua.Allergen)
-                    .Include(u => u.Addresses)
-                    .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<User> CreateAsync(User entity)
@@ -92,6 +86,7 @@ namespace gozba_na_klik.Repository
             return await _dbContext.Users
                     .Include(u => u.UserAllergens)
                     .ThenInclude(ua => ua.Allergen)
+                    .Include(u => u.Addresses)
                     .FirstOrDefaultAsync(u => u.Email == email);
         }
 

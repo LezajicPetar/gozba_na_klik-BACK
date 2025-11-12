@@ -10,10 +10,9 @@ namespace gozba_na_klik.Model
         // ADMIN funkcionalnosti
         Task<Restaurant?> GetByIdWithOwnerAsync(int id);
         Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync();
-         Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId);
 
         // OWNER funkcionalnosti
-        Task<IEnumerable<Restaurant>> GetByOwnerAsync(int ownerId);
+        Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId);
          Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
 
          Task<MenuItem> UpdateMenuItemAsync(int restaurantId, MenuItem item);

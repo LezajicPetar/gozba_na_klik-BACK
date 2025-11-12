@@ -7,7 +7,7 @@ namespace gozba_na_klik.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/restaurants")]
-    [Authorize(Roles ="Admin")] //ogranicava pristup samo useru sa rolom admin
+    [Authorize(Roles = "Admin")] //ogranicava pristup samo useru sa rolom admin
     public class AdminRestaurantsController : ControllerBase
     {
         private readonly IAdminRestaurantService _service;
@@ -60,20 +60,11 @@ namespace gozba_na_klik.Controllers.Admin
 
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> DeleteAsync(int id)
         {
-            try
-            {
-                var success = await _repository.DeleteAsync(id);
-                if (!success)
-                    return NotFound(new { message = $"Restaurant with ID {id} was not found." });
+            await _service.DeleteAsync(id);
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
-            }
+            return NoContent();
         }
     }
 }
