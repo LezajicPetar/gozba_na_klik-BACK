@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using gozba_na_klik.Dtos.Restaurants;
 
 namespace gozba_na_klik.Model
 {
@@ -11,7 +12,10 @@ namespace gozba_na_klik.Model
         Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync();
 
         // OWNER funkcionalnosti
-        Task<IEnumerable<Restaurant>> GetByOwnerAsync(int ownerId);
+        Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId);
+         Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
+
+         Task<MenuItem> UpdateMenuItemAsync(int restaurantId, MenuItem item);
 
         // Radno vreme
         Task<List<RestaurantWorkTime>> GetWorkTimesAsync(int restaurantId);

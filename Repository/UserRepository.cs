@@ -26,6 +26,7 @@ namespace gozba_na_klik.Repository
             return await _dbContext.Users
                 .Include(u => u.UserAllergens)
                     .ThenInclude(ua => ua.Allergen)
+                .Include(u => u.Addresses)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
@@ -85,6 +86,7 @@ namespace gozba_na_klik.Repository
             return await _dbContext.Users
                     .Include(u => u.UserAllergens)
                     .ThenInclude(ua => ua.Allergen)
+                    .Include(u => u.Addresses)
                     .FirstOrDefaultAsync(u => u.Email == email);
         }
 

@@ -7,7 +7,7 @@ namespace gozba_na_klik.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/restaurants")]
-    [Authorize(Roles ="Admin")] //ogranicava pristup samo useru sa rolom admin
+    [Authorize(Roles = "Admin")] //ogranicava pristup samo useru sa rolom admin
     public class AdminRestaurantsController : ControllerBase
     {
         private readonly IAdminRestaurantService _service;
@@ -63,6 +63,7 @@ namespace gozba_na_klik.Controllers.Admin
         public async Task<ActionResult> DeleteAsync(int id)
         {
             await _service.DeleteAsync(id);
+
             return NoContent();
         }
     }

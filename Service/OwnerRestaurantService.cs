@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using gozba_na_klik.Dtos.MenuItems;
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Exceptions;
 using gozba_na_klik.Model;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace gozba_na_klik.Service
 {
@@ -32,15 +33,45 @@ namespace gozba_na_klik.Service
             _env = env;
         }
 
+        public async Task<UpdateMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item)
+        {
+            _logger.LogInformation("Updating menu item: {Name} for restaurant {RestaurantId}", item.Name, restaurantId);
+
+            if (restaurantId != item.RestaurantId)
+                throw new BadRequestException("Jelo ne pripada restoranu (ID-jevi se ne podudaraju).");
+
+            var restaurant = await EnsureRestaurantExistsAsync(restaurantId);
+
+            var menuItem = _mapper.Map<MenuItem>(item);
+
+            var updated = await _repo.UpdateMenuItemAsync(restaurantId, menuItem);
+
+            _logger.LogInformation("Menu item {Name} updated successfully from restaurant {RestaurantId}.", item.Name, restaurantId);
+
+            return _mapper.Map<UpdateMenuItemDto>(updated);
+        }
+        public async Task DeleteMenuItemAsync(int restaurantId, int menuItemId)
+        {
+            _logger.LogInformation("Deleting menu item {MenuItemId} for restaurant {RestaurantId}", menuItemId, restaurantId);
+
+            await EnsureRestaurantExistsAsync(restaurantId);
+
+            var deleted = await _repo.DeleteMenuItemAsync(restaurantId, menuItemId);
+
+            if (!deleted) throw new NotFoundException("MenuItem", menuItemId);
+
+            _logger.LogInformation("Menu item {MenuItemId} deleted successfully from restaurant {RestaurantId}.", menuItemId, restaurantId);
+        }
+
+
         public async Task<List<RestaurantSummaryDto>> GetMineAsync(int ownerId, CancellationToken ct = default)
         {
             if (ownerId <= 0)
                 throw new BadRequestException("ownerId is required.");
 
-            var list = await _repo.GetByOwnerAsync(ownerId);
+            var list = await _repo.GetAllByOwnerAsync(ownerId);
             return list.Select(_mapper.Map<RestaurantSummaryDto>).ToList();
         }
-
         public async Task<RestaurantDetailsDto> GetOneAsync(int id, int ownerId, CancellationToken ct = default)
         {
             var r = await _repo.GetByIdAsync(id);
@@ -48,7 +79,6 @@ namespace gozba_na_klik.Service
             if (r.OwnerId != ownerId) throw new ForbiddenException("Not allowed to access this restaurant.");
             return _mapper.Map<RestaurantDetailsDto>(r);
         }
-
         public async Task<RestaurantDetailsDto> UpdateGeneralAsync(int id, int ownerId, RestaurantUpsertDto dto, CancellationToken ct = default)
         {
             var r = await _repo.GetByIdAsync(id);
@@ -61,7 +91,6 @@ namespace gozba_na_klik.Service
             _logger.LogInformation("Owner {OwnerId} updated general info for restaurant {RestaurantId}", ownerId, id);
             return _mapper.Map<RestaurantDetailsDto>(saved);
         }
-
         public async Task<string> UpdateCoverAsync(int id, int ownerId, IFormFile? file, CancellationToken ct = default)
         {
             if (file is null || file.Length == 0)
@@ -99,6 +128,7 @@ namespace gozba_na_klik.Service
             return relUrl;
         }
 
+
         //work time - schedule
         public async Task<List<RestaurantWorkTimeDto>> GetScheduleAsync(int id, int ownerId)
         {
@@ -109,7 +139,6 @@ namespace gozba_na_klik.Service
             var list = await _repo.GetWorkTimesAsync(id);
             return list.Select(_mapper.Map<RestaurantWorkTimeDto>).ToList();
         }
-
         public async Task SetScheduleAsync(int id, int ownerId, IEnumerable<RestaurantWorkTimeDto> times)
         {
             var r = await _repo.GetByIdAsync(id);
@@ -122,7 +151,6 @@ namespace gozba_na_klik.Service
 
 
         //exceptions - neradni dani
-
         public async Task<List<RestaurantExceptionDto>> GetExceptionsAsync(int id, int ownerId)
         {
             var r = await _repo.GetByIdAsync(id);
@@ -153,8 +181,6 @@ namespace gozba_na_klik.Service
             var saved = await _repo.AddExceptionAsync(entity);
             return _mapper.Map<RestaurantExceptionDto>(saved);
         }
-
-
         public async Task<bool> DeleteExceptionAsync(int id, int ownerId, int exId)
         {
             var r = await _repo.GetByIdAsync(id);
@@ -162,5 +188,14 @@ namespace gozba_na_klik.Service
             if (r.OwnerId != ownerId) throw new ForbiddenException("Not allowed.");
             return await _repo.DeleteExceptionAsync(exId);
         }
+
+        //HELPER METODE
+        private async Task<Restaurant> EnsureRestaurantExistsAsync(int id)
+        {
+            var restaurant = await _repo.GetByIdAsync(id);
+
+            return restaurant ?? throw new NotFoundException("Restaurant", id);
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.Data;
+﻿using AutoMapper;
+using gozba_na_klik.Data;
 using gozba_na_klik.Dtos;
 using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +14,20 @@ namespace gozba_na_klik.Controllers
         private readonly GozbaDbContext _db;
         private readonly IWebHostEnvironment _env;
         private readonly UserService _userService;
+        private readonly IMapper _mapper;
 
         private static readonly string[] Allowed = new[] { "image/jpeg", "image/png" };
-        
-        public UsersController(GozbaDbContext db, IWebHostEnvironment env, UserService userService)
+
+        public UsersController(
+            GozbaDbContext db,
+            IWebHostEnvironment env,
+            UserService userService,
+            IMapper mapper)
         {
             _db = db;
             _env = env;
             _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpPut("{id}")]
@@ -31,8 +38,8 @@ namespace gozba_na_klik.Controllers
             if (updatedUser is null)
                 return NotFound();
 
-            var userDto =  gozba_na_klik.Dtos.UserDto.createDto(updatedUser);
-            
+            var userDto = _mapper.Map<UserDto>(updatedUser);
+
             return Ok(userDto);
         }
 
@@ -44,7 +51,7 @@ namespace gozba_na_klik.Controllers
         {
             if (file == null || file.Length == 0) return BadRequest("Fajl je obavezan. ");
             if (!Allowed.Contains(file.ContentType)) return BadRequest("Dozvoljeni format: .jpg, .png ");
-            
+
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null) return NotFound();
 
