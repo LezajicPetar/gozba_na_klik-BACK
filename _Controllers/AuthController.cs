@@ -48,9 +48,28 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> LoginAsync([FromBody] LoginDto dto)
     {
+        //validacija kredincijala
         var userDto = await _authService.LoginAsync(dto);
+        if (userDto is null)
+            return Unauthorized("Pogresan email ili lozinka");
 
-        return userDto is null ? Unauthorized() : Ok(userDto);
+        //pronalazenje User entiteta zbog role
+        var user = await _authService.GetByEmailAsync(dto.Email);
+        if (user is null)
+            return Unauthorized("Pogresan email ili lozinka");
+
+        //generisanje JWT tokena sa rolom
+        var token = _tokenService.Generate(user);
+
+        //vracanje tokena + user dto
+        var response = new AuthResponseDto
+        {
+            Token = token,
+            User = userDto
+        };
+
+        return Ok(response);
+        
     }
 
     [HttpPost("logout")]
@@ -77,8 +96,8 @@ public class AuthController : ControllerBase
         if (string.IsNullOrWhiteSpace(last) || last.Length > MaxNameLen)
             ModelState.AddModelError(nameof(dto.LastName), $"Obavezno polje (max {MaxNameLen} karaktera).");
 
-        if (string.IsNullOrWhiteSpace(username) || username.Length > MaxNameLen)
-            ModelState.AddModelError(nameof(dto.FirstName), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
+        if (string.IsNullOrWhiteSpace(username) || username.Length > MaxUsernameLen)
+            ModelState.AddModelError(nameof(dto.Username), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
 
         if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen || !_rxEmail.IsMatch(email))
             ModelState.AddModelError(nameof(dto.Email), "Email nije validan.");

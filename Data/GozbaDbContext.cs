@@ -165,37 +165,37 @@ namespace gozba_na_klik.Data
 
 
             #region SEED DATA
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    Id = 1,
-                    FirstName = "Admin",
-                    LastName = "One",
-                    Username = "Admin1",
-                    Email = "admin1@gozba.com",
-                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
-                    Role = Role.Admin
-                },
-                new User
-                {
-                    Id = 2,
-                    FirstName = "Admin",
-                    LastName = "Two",
-                    Username = "Admin2",
-                    Email = "admin2@gozba.com",
-                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
-                    Role = Role.Admin
-                },
-                new User
-                {
-                    Id = 3,
-                    FirstName = "Admin",
-                    LastName = "Three",
-                    Username = "Admin3",
-                    Email = "admin3@gozba.com",
-                    PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
-                    Role = Role.Admin
-                });
+            //modelBuilder.Entity<User>().HasData(
+            //    new User
+            //    {
+            //        Id = 1,
+            //        FirstName = "Admin",
+            //        LastName = "One",
+            //        Username = "Admin1",
+            //        Email = "admin1@gozba.com",
+            //        PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+            //        Role = Role.Admin
+            //    },
+            //    new User
+            //    {
+            //        Id = 2,
+            //        FirstName = "Admin",
+            //        LastName = "Two",
+            //        Username = "Admin2",
+            //        Email = "admin2@gozba.com",
+            //        PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+            //        Role = Role.Admin
+            //    },
+            //    new User
+            //    {
+            //        Id = 3,
+            //        FirstName = "Admin",
+            //        LastName = "Three",
+            //        Username = "Admin3",
+            //        Email = "admin3@gozba.com",
+            //        PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+            //        Role = Role.Admin
+            //    });
 
             modelBuilder.Entity<Allergen>().HasData(
                 new Allergen { Id = 1, Name = "Gluten" },

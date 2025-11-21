@@ -23,18 +23,23 @@ namespace gozba_na_klik.Service
 
         public async Task<UserDto?> LoginAsync(LoginDto dto)
         {
-            var user = await _userRepo.GetByEmailAsync(dto.Email);
+            var email = (dto.Email ?? "").Trim().ToLowerInvariant();
+            //pronalazenje user-a po email-u
+            var user = await _userRepo.GetByEmailAsync(email);
 
-            //VALIDACIJA ZA PASSWORD OVDE IDE
+            if (user == null)
+                return null;
+            //proveravanje sifre
+            var isValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
+            if (!isValid)
+                return null;
+            //mapiranje u DTO i vracanje
             var userDto = _mapper.Map<UserDto>(user);
-
-            return user is null ? null : userDto;
+            return userDto;
         }
         public async Task<User?> GetByEmailAsync(string email)
         {
-            var user = await _userRepo.GetByEmailAsync(email);
-
-            return null;
+            return await _userRepo.GetByEmailAsync(email);
         }
         public async Task<User?> RegisterUserAsync(User u)
         {
