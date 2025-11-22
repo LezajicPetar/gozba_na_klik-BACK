@@ -22,8 +22,9 @@ namespace gozba_na_klik.Model
 
         public decimal Subtotal { get; set; }
         public decimal DeliveryFee { get; set; } = 200;
-        public decimal Total { get; set; }  
+        public decimal Total { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public OrderStatus Status { get; set; } = OrderStatus.NaCekanju;
 
         public List<OrderItem> Items { get; set; } = new();
