@@ -19,5 +19,6 @@ namespace gozba_na_klik.Model
         public ICollection<UserAllergen> UserAllergens { get; set; } = new List<UserAllergen>();
         public ICollection<WorkTime>? WorkTimes { get; set; }
         public ICollection<Restaurant>? Restaurants { get; set; }
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

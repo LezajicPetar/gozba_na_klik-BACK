@@ -20,7 +20,7 @@ namespace gozba_na_klik.Data
         public DbSet<UserAllergen> UserAllergens { get; set; }
         public DbSet<RestaurantWorkTime> RestaurantWorkTimes { get; set; }
         public DbSet<RestaurantExceptionDate> RestaurantExceptionDates { get; set; }
-        
+        public DbSet<Review> Reviews { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
@@ -79,6 +79,20 @@ namespace gozba_na_klik.Data
                 .HasMany(o => o.Items)
                 .WithOne(i => i.Order)
                 .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            #region REVIEW
+            modelBuilder.Entity<Review>()
+                .HasOne(rv => rv.Restaurant)
+                .WithMany(r => r.Reviews)
+                .HasForeignKey(rv => rv.RestaurantId)
+                .OnDelete(DeleteBehavior.Cascade);  
+
+            modelBuilder.Entity<Review>()
+                .HasOne(rv => rv.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(rv => rv.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             #endregion
 

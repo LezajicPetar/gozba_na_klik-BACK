@@ -90,6 +90,9 @@ namespace gozba_na_klik
             builder.Services.AddScoped<IRepository<User>, UserRepository>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             builder.Services.AddScoped<IRepository<Restaurant>, RestaurantRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+
 
             // Servisi po ulogama
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
@@ -111,6 +114,7 @@ namespace gozba_na_klik
                 cfg.AddProfile<MenuItemProfile>();
                 cfg.AddProfile<OrderProfile>();
                 cfg.AddProfile<UserProfile>();
+                cfg.AddProfile<ReviewProfile>();
             });
 
 
