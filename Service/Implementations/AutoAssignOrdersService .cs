@@ -1,5 +1,6 @@
 ﻿using gozba_na_klik.Data;
 using gozba_na_klik.Enums;
+using gozba_na_klik.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik.Service.Implementations
@@ -82,9 +83,8 @@ namespace gozba_na_klik.Service.Implementations
                 {
                     _log.LogError(ex, "Greska u AutoAssignOrdersService");
                 }
+                await Task.Delay(TimeSpan.FromSeconds(10), ct);
             }
-
-            await Task.Delay(TimeSpan.FromSeconds(10), ct);
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿namespace gozba_na_klik.Model.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace gozba_na_klik.Model.Entities
 {
+    [Table("Restaurants")]
     public class Restaurant
     {
         public int Id { get; set; }
@@ -9,6 +12,7 @@
         public string? Phone { get; set; }
         public int? Capacity { get; set; }
         public string? Photo { get; set; }
+        public ICollection<MenuItem>? Menu { get; set; }
 
         public User? Owner { get; set; }
         public int OwnerId { get; set; }

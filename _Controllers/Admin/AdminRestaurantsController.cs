@@ -64,6 +64,7 @@ namespace gozba_na_klik.Controllers.Admin
         public async Task<ActionResult> DeleteAsync(int id)
         {
             await _service.DeleteAsync(id);
+
             return NoContent();
         }
     }

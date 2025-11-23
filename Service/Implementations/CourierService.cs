@@ -4,7 +4,6 @@ using gozba_na_klik.Dtos.Users;
 using gozba_na_klik.Enums;
 using gozba_na_klik.Exceptions;
 using gozba_na_klik.Model.Entities;
-using gozba_na_klik.Model.Entities.Orders;
 using gozba_na_klik.Model.Interfaces;
 using gozba_na_klik.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -125,7 +124,7 @@ namespace gozba_na_klik.Service.Implementations
                     throw new BadRequestException($"Nevalidan format vremena za dan {d.DayOfWeek}: Start='{d.Start}' (ocekujem HH:mm).");
 
                 if (!TimeOnly.TryParseExact(d.End, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var e))
-                    throw new BadRequestException($"Nevalidan format vremena za dan {d.DayOfWeek}: End='{d.End}' (očekujem HH:mm).");
+                    throw new BadRequestException($"Nevalidan format vremena za dan {d.DayOfWeek}: End='{d.End}' (ocekujem HH:mm).");
 
                 if (s >= e)
                     throw new BadRequestException($"Start mora biti pre End za dan {d.DayOfWeek}.");
@@ -176,7 +175,7 @@ namespace gozba_na_klik.Service.Implementations
                 return new CourierStatusResponseDto { Status = "Suspended", CheckedAtLocal = nowLocal };
             }
 
-            var dow = (int)nowLocal.DayOfWeek;     // Sunday=0 (Ned=0), bez ikakvog pomeraja
+            var dow = (int)nowLocal.DayOfWeek;     // Sunday=0 (Ned=0), bez ikakvog pomeranja
             var t = TimeOnly.FromDateTime(nowLocal);
 
             var wt = await _db.WorkTimes

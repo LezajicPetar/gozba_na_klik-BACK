@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json.Serialization;
 using gozba_na_klik.Data;
 using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
@@ -10,10 +8,11 @@ using gozba_na_klik.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
+using System.Text;
+using System.Text.Json.Serialization;
 using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Service.Interfaces;
 using gozba_na_klik.Service;
@@ -33,7 +32,7 @@ namespace gozba_na_klik
                     o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 });
-                    
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -50,20 +49,24 @@ namespace gozba_na_klik
                 });
 
                 c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                    });
+
+                c.CustomSchemaIds(t => t.FullName); //TREBA MOZDA OBRISATI
+
             });
+
 
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -74,9 +77,16 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
-          
-          //Vukasin
+
+            //Vukasin
             builder.Services.AddScoped<RestaurantRepository>();
+            builder.Services.AddScoped<Repository.RestaurantRepository>();
+            builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+
             builder.Services.AddScoped<AddressRepository>();
             builder.Services.AddScoped<AddressService>();
 
@@ -104,17 +114,25 @@ namespace gozba_na_klik
 
                 // Korisnici
                 cfg.AddProfile<UserProfile>();
+                cfg.AddProfile<RestaurantProfile>(); //PRIMER ZA DODAVANJE PROFILA
+                cfg.AddProfile<MenuItemProfile>();
+                cfg.AddProfile<OrderProfile>();
+                cfg.AddProfile<UserProfile>();
             });
+
 
             var logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
                 .Filter.ByExcluding(Matching.FromSource("Microsoft"))
                 .Filter.ByExcluding(Matching.FromSource("System"))
-                .Filter.ByIncludingOnly(Matching.FromSource("gozba_na_klik"))                
+                .Filter.ByIncludingOnly(Matching.FromSource("gozba_na_klik"))
                 .CreateLogger();
 
+            //builder.Logging.ClearProviders(); OTKOMENTARISI OVO, NAREDNA 3 REDA IZBRISI
+            //builder.Logging.AddSerilog(logger);
             builder.Logging.ClearProviders();
-            builder.Logging.AddSerilog(logger);
+            builder.Logging.AddConsole();
+            builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
 
             builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
@@ -159,10 +177,10 @@ namespace gozba_na_klik
 
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage(); // TREBA OBRISATI - ISPRAVLJANJE GRESKE
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
@@ -172,7 +190,7 @@ namespace gozba_na_klik
             app.UseCors("Front");
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             //bitno da bi /uploads/ radilo
             app.UseStaticFiles();
 

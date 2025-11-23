@@ -9,5 +9,6 @@ namespace gozba_na_klik.Model.Interfaces
         Task<bool> ExistsByNameAsync(string firstName, string lastName);
         Task<User?> GetByEmailAsync(string email);
         Task<IEnumerable<User>> GetOwnersAsync();
+
     }
 }

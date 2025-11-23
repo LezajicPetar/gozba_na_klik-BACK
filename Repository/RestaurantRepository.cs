@@ -12,16 +12,20 @@ namespace gozba_na_klik.Repository
         public RestaurantRepository(GozbaDbContext db) => _db = db;
 
         public async Task<IEnumerable<Restaurant>> GetAllAsync()
-            => await _db.Restaurants.ToListAsync();
+        {
+            return await _db.Restaurants.Include(r => r.Menu).ToListAsync();
+        }
 
         public async Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync()
             => await _db.Restaurants.Include(r => r.Owner).ToListAsync();
-        public async Task<IEnumerable<Restaurant>> GetByOwnerAsync(int ownerId)
+
+        public async Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId)
         {
             return await _db.Restaurants
                 .Include(r => r.Owner)
                 .Where(r => r.OwnerId == ownerId)
                 .AsNoTracking()
+                .Include(r => r.Menu)
                 .ToListAsync();
         }
 
@@ -87,7 +91,6 @@ namespace gozba_na_klik.Repository
             return ex;
         }
 
-
         public async Task<bool> DeleteExceptionAsync(int exceptionId)
         {
             var e = await _db.RestaurantExceptionDates.FindAsync(exceptionId);
@@ -97,6 +100,37 @@ namespace gozba_na_klik.Repository
             return true;
         }
 
+
+        public async Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId)
+        {
+            var menuItem = await _db.MenuItems
+                .FirstOrDefaultAsync(m => m.Id == menuItemId && m.RestaurantId == restaurantId);
+
+            if (menuItem == null) return false;
+
+            _db.MenuItems.Remove(menuItem);
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        public async Task<MenuItem?> UpdateMenuItemAsync(int restaurantId, MenuItem item)
+        {
+            var existing = await _db.MenuItems
+                   .FirstOrDefaultAsync(m => m.Id == item.Id && m.RestaurantId == restaurantId);
+
+            if (existing == null) return null;
+
+            existing.Name = item.Name;
+            existing.Description = item.Description;
+            existing.Price = item.Price;
+            existing.PhotoPath = string.IsNullOrWhiteSpace(item.PhotoPath)
+                ? existing.PhotoPath
+                : item.PhotoPath;
+
+            await _db.SaveChangesAsync();
+
+            return existing;
+        }
     }
 }
 

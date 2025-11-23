@@ -7,7 +7,7 @@ using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Enums;
 using gozba_na_klik.Exceptions;
 using gozba_na_klik.Model.Interfaces;
-using gozba_na_klik.Repository;
+using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Service.Interfaces;
 
 namespace gozba_na_klik.Service

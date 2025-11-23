@@ -19,8 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 
 [ApiController]
 [Route("api/[controller]")]
-    public class AuthController : ControllerBase
-    {
+public class AuthController : ControllerBase
+{
     private readonly TokenService _tokenService;
     private readonly AuthService _authService;
     private readonly IConfiguration _configuration;
@@ -46,10 +46,11 @@ using Microsoft.IdentityModel.Tokens;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponseDto>> LoginAsync([FromBody] LoginDto dto)
+    public async Task<ActionResult<UserDto>> LoginAsync([FromBody] LoginDto dto)
     {
-        var auth = await _authService.LoginAsync(dto);
-        return auth is null ? Unauthorized() : Ok(auth);
+        var userDto = await _authService.LoginAsync(dto);
+
+        return userDto is null ? Unauthorized() : Ok(userDto);
     }
 
     [HttpPost("logout")]
@@ -79,7 +80,7 @@ using Microsoft.IdentityModel.Tokens;
         if (string.IsNullOrWhiteSpace(username) || username.Length > MaxUsernameLen)
             ModelState.AddModelError(nameof(dto.Username), $"Obavezno polje (max {MaxUsernameLen} karaktera).");
 
-        if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen ||! _rxEmail.IsMatch(email))
+        if (string.IsNullOrWhiteSpace(email) || email.Length > MaxEmailLen || !_rxEmail.IsMatch(email))
             ModelState.AddModelError(nameof(dto.Email), "Email nije validan.");
 
         if (password.Length < MinPasswordLen || password.Length > MaxPasswordLen)
