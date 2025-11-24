@@ -6,11 +6,15 @@
         Task<Restaurant?> GetByIdWithOwnerAsync(int id);
         Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync();
 
+
         // OWNER funkcionalnosti
         Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId);
-        Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
 
+
+        Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
         Task<MenuItem> UpdateMenuItemAsync(int restaurantId, MenuItem item);
+        Task<MenuItem> CreateMenuItemAsync(int restaurantId, MenuItem item);
+
 
         // Radno vreme
         Task<List<RestaurantWorkTime>> GetWorkTimesAsync(int restaurantId);

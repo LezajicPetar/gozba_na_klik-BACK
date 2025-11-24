@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.Dtos.MenuItems;
+﻿using gozba_na_klik.Dtos.MenuItem;
+using gozba_na_klik.Dtos.MenuItems;
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Model;
 using gozba_na_klik.Service;
@@ -29,7 +30,7 @@ namespace gozba_na_klik.Controllers.OwnerArea
 
 
         [HttpPut("{restaurantId}/menu/{menuItemId}")]
-        public async Task<ActionResult<UpdateMenuItemDto>> UpdateMenuItemAsync(int restaurantId, [FromBody] UpdateMenuItemDto item)
+        public async Task<ActionResult<ReadMenuItemDto>> UpdateMenuItemAsync(int restaurantId, [FromBody] UpdateMenuItemDto item)
         {
             _logger.LogInformation("HTTP PUT /api/owner/restaurants/{restaurantId}/menu/{menuItemId} triggered.", restaurantId, item.Id);
 
@@ -39,7 +40,7 @@ namespace gozba_na_klik.Controllers.OwnerArea
 
             return Ok(updated);
         }
-
+        
         [HttpDelete("{restaurantId}/menu/{menuItemId}")]
         public async Task<ActionResult> DeleteMenuItemAsync(int restaurantId, int menuItemId)
         {
@@ -50,6 +51,18 @@ namespace gozba_na_klik.Controllers.OwnerArea
             _logger.LogInformation("HTTP DELETE /api/owner/restaurants/{restaurantId}/menu/{menuItemId} completed.", restaurantId, menuItemId);
 
             return NoContent();
+        }
+        
+        [HttpPost("{restaurantId}/menu")]
+        public async Task<ActionResult<ReadMenuItemDto>> CreateMenuItemAsync(int restaurantId, CreateMenuItemDto dto)
+        {
+            _logger.LogInformation("HTTP POST /api/owner/restaurants/{restaurantId}/menu triggered.", restaurantId);
+
+            var menuItem = await _service.CreateMenuItemAsync(restaurantId, dto);
+
+            _logger.LogInformation("HTTP POST /api/owner/restaurants/{restaurantId}/menu completed.", restaurantId);
+
+            return Ok(menuItem);
         }
 
 
