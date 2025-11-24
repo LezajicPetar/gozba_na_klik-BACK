@@ -1,12 +1,15 @@
-﻿using gozba_na_klik.Dtos.MenuItems;
+﻿using gozba_na_klik.Dtos.MenuItem;
+using gozba_na_klik.Dtos.MenuItems;
 using gozba_na_klik.Dtos.Restaurants;
+using gozba_na_klik.Model;
 
 namespace gozba_na_klik.Service
 {
     public interface IOwnerRestaurantService
     {
-        Task<UpdateMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item);
+        Task<ReadMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item);
         Task DeleteMenuItemAsync(int restaurantId, int menuItemId);
+        Task<ReadMenuItemDto> CreateMenuItemAsync(int restaurantId, CreateMenuItemDto item);
 
         Task<List<RestaurantSummaryDto>> GetMineAsync(int ownerId, CancellationToken ct = default);
         Task<RestaurantDetailsDto> GetOneAsync(int id, int ownerId, CancellationToken ct = default);

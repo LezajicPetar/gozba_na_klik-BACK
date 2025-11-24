@@ -1,4 +1,5 @@
 ﻿using gozba_na_klik.Data;
+using gozba_na_klik.Dtos.MenuItems;
 using gozba_na_klik.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -8,16 +9,15 @@ namespace gozba_na_klik.Repository
     public class RestaurantRepository : IRestaurantRepository
     {
         private readonly GozbaDbContext _db;
+
         public RestaurantRepository(GozbaDbContext db) => _db = db;
 
         public async Task<IEnumerable<Restaurant>> GetAllAsync()
         {
             return await _db.Restaurants.Include(r => r.Menu).ToListAsync();
         }
-
         public async Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync()
             => await _db.Restaurants.Include(r => r.Owner).ToListAsync();
-
         public async Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId)
         {
             return await _db.Restaurants
@@ -27,7 +27,6 @@ namespace gozba_na_klik.Repository
                 .Include(r => r.Menu)
                 .ToListAsync();
         }
-
         public async Task<Restaurant?> GetByIdAsync(int id)
             => await _db.Restaurants.FirstOrDefaultAsync(r => r.Id == id);
         public async Task<Restaurant?> GetByIdWithOwnerAsync(int id)
@@ -123,7 +122,12 @@ namespace gozba_na_klik.Repository
 
             return existing;
         }
-
+        public async Task<MenuItem> CreateMenuItemAsync(int restaurantId, MenuItem item)
+        {
+            _db.MenuItems.Add(item);
+            await _db.SaveChangesAsync();
+            return item;
+        }
 
         public async Task<IEnumerable<Restaurant>> GetMostRecentByUserAsync(int userId)
         {

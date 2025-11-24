@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using gozba_na_klik.Dtos.MenuItem;
 using gozba_na_klik.Dtos.MenuItems;
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Exceptions;
@@ -33,7 +34,7 @@ namespace gozba_na_klik.Service
             _env = env;
         }
 
-        public async Task<UpdateMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item)
+        public async Task<ReadMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item)
         {
             _logger.LogInformation("Updating menu item: {Name} for restaurant {RestaurantId}", item.Name, restaurantId);
 
@@ -48,7 +49,7 @@ namespace gozba_na_klik.Service
 
             _logger.LogInformation("Menu item {Name} updated successfully from restaurant {RestaurantId}.", item.Name, restaurantId);
 
-            return _mapper.Map<UpdateMenuItemDto>(updated);
+            return _mapper.Map<ReadMenuItemDto>(updated);
         }
         public async Task DeleteMenuItemAsync(int restaurantId, int menuItemId)
         {
@@ -61,6 +62,21 @@ namespace gozba_na_klik.Service
             if (!deleted) throw new NotFoundException("MenuItem", menuItemId);
 
             _logger.LogInformation("Menu item {MenuItemId} deleted successfully from restaurant {RestaurantId}.", menuItemId, restaurantId);
+        }
+        public async Task<ReadMenuItemDto> CreateMenuItemAsync(int restaurantId, CreateMenuItemDto dto)
+        {
+            _logger.LogInformation("Creating menu item for restaurant {RestaurantId}", restaurantId);
+
+            await EnsureRestaurantExistsAsync(restaurantId);
+
+            var menuItem = _mapper.Map<MenuItem>(dto);
+            menuItem.RestaurantId = restaurantId;
+
+            var created = await _repo.CreateMenuItemAsync(restaurantId, menuItem);
+
+            _logger.LogInformation("Menu item {MenuItemId} successfully created from restaurant {RestaurantId}.", created.Id, restaurantId);
+
+            return _mapper.Map<ReadMenuItemDto>(created);
         }
 
 
