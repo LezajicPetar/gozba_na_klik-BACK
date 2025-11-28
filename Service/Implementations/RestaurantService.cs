@@ -5,6 +5,8 @@ using gozba_na_klik.Exceptions;
 using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Service.Interfaces;
 using gozba_na_klik.Model.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using gozba_na_klik.Dtos.Review;
 
 namespace gozba_na_klik.Service.Implementations
 {
@@ -27,7 +29,6 @@ namespace gozba_na_klik.Service.Implementations
 
             return _mapper.Map<IEnumerable<RestaurantDto>>(restaurants);
         }
-
         public async Task<IEnumerable<RestaurantDto>> GetAllByOwnerAsync(int ownerId)
         {
             _logger.LogInformation("Fetching all owners restaurants ...");
@@ -38,7 +39,6 @@ namespace gozba_na_klik.Service.Implementations
 
             return _mapper.Map<IEnumerable<RestaurantDto>>(restaurants);
         }
-
         public async Task<RestaurantDto> GetByIdAsync(int id)
         {
             _logger.LogInformation("Fetching restaurant with ID {RestaurantId}", id);
@@ -61,7 +61,6 @@ namespace gozba_na_klik.Service.Implementations
 
             _logger.LogInformation("Menu item {MenuItemId} deleted successfully from restaurant {RestaurantId}.", menuItemId, restaurantId);
         }
-
         public async Task<UpdateMenuItemDto> UpdateMenuItemAsync(int restaurantId, UpdateMenuItemDto item)
         {
             _logger.LogInformation("Updating menu item: {Name} for restaurant {RestaurantId}", item.Name, restaurantId);
@@ -79,7 +78,27 @@ namespace gozba_na_klik.Service.Implementations
 
             return _mapper.Map<UpdateMenuItemDto>(updated);
         }
+        
+        
+        public async Task<IEnumerable<RestaurantDto>> GetMostRecentByUserAsync(int userId)
+        {
+            var restaurants = await _restaurantRepo.GetMostRecentByUserAsync(userId);
 
+            return _mapper.Map<IEnumerable<RestaurantDto>>(restaurants);
+            
+        }
+        public async Task<IEnumerable<RestaurantDto>> GetFavouriteByUserAsync(int userId)
+        {
+            var restaurants = await _restaurantRepo.GetFavouritesByUserAsync(userId);
+
+            return _mapper.Map<IEnumerable<RestaurantDto>>(restaurants);
+        }
+        public async Task<IEnumerable<RestaurantDto>> GetTopRatedAsync()
+        {
+            var restaurants = await _restaurantRepo.GetTopRatedAsync();
+
+            return _mapper.Map<IEnumerable<RestaurantDto>>(restaurants);
+        }
 
         private async Task<Restaurant> EnsureRestaurantExistsAsync(int id)
         {

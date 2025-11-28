@@ -14,7 +14,11 @@ namespace gozba_na_klik.Mapping
                .ForMember(d => d.OwnerName,
                    o => o.MapFrom(s => s.Owner == null
                        ? string.Empty
-                       : $"{s.Owner.FirstName} {s.Owner.LastName}".Trim()));
+                       : $"{s.Owner.FirstName} {s.Owner.LastName}".Trim()))
+               .ForMember(dest => dest.Rating,
+               opt => opt.MapFrom(src => src.Reviews.Count == 0
+                    ? 0
+                    : src.Reviews.Average(r => r.Rating)));
 
             CreateMap<RestaurantInputDto, Restaurant>();
         }

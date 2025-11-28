@@ -71,7 +71,7 @@ namespace gozba_na_klik
             builder.Services.AddDbContext<GozbaDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
             //repozitorijumi i servisi
-            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<AllergenRepository>();
@@ -94,6 +94,12 @@ namespace gozba_na_klik
             builder.Services.AddScoped<IRepository<User>, UserRepository>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             builder.Services.AddScoped<IRepository<Restaurant>, RestaurantRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+
+            builder.Services.AddScoped<IEmployeeOrderService, EmployeeOrderService>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
 
             // Servisi po ulogama
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
@@ -118,6 +124,7 @@ namespace gozba_na_klik
                 cfg.AddProfile<MenuItemProfile>();
                 cfg.AddProfile<OrderProfile>();
                 cfg.AddProfile<UserProfile>();
+                cfg.AddProfile<ReviewProfile>();
             });
 
 

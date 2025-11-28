@@ -4,16 +4,14 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using BCrypt.Net;
-using gozba_na_klik.Data;
 using gozba_na_klik.Dtos;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Service.External;
-using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using gozba_na_klik.Service.Interfaces;
 
 
 
@@ -22,7 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 public class AuthController : ControllerBase
 {
     private readonly TokenService _tokenService;
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
     private readonly IConfiguration _configuration;
 
     // Password politika
@@ -38,7 +36,7 @@ public class AuthController : ControllerBase
     private static readonly Regex _rxEmail = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
 
-    public AuthController(TokenService tokenService, AuthService authService, IConfiguration configuration)
+    public AuthController(TokenService tokenService, IAuthService authService, IConfiguration configuration)
     {
         _tokenService = tokenService;
         _authService = authService;
@@ -48,9 +46,28 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> LoginAsync([FromBody] LoginDto dto)
     {
+        //validacija kredincijala
         var userDto = await _authService.LoginAsync(dto);
+        if (userDto is null)
+            return Unauthorized("Pogresan email ili lozinka");
 
-        return userDto is null ? Unauthorized() : Ok(userDto);
+        //pronalazenje User entiteta zbog role
+        var user = await _authService.GetByEmailAsync(dto.Email);
+        if (user is null)
+            return Unauthorized("Pogresan email ili lozinka");
+
+        //generisanje JWT tokena sa rolom
+        var token = _tokenService.Generate(user);
+
+        //vracanje tokena + user dto
+        var response = new AuthResponseDto
+        {
+            Token = token,
+            User = userDto
+        };
+
+        return Ok(response);
+        
     }
 
     [HttpPost("logout")]
@@ -92,27 +109,23 @@ public class AuthController : ControllerBase
         if (password != cpass)
             ModelState.AddModelError(nameof(dto.ConfirmPassword), "Lozinke se ne poklapaju.");
 
-        // Ako ima ijedna greska - vrati 400 sa detaljima
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
-        // Unikatnost email-a 
         var exists = await _authService.GetByEmailAsync(email);
         if (exists != null) return Conflict("Nalog sa tim email-om već postoji");
 
-        // Kreiranje korisnika
-        var hash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-
+        //kreiranje korisnika
         var user = new User
         {
             FirstName = first,
             LastName = last,
             Email = email,
             Username = username,
-            PasswordHash = hash // Role ostaje default: Customer
+            PasswordHash = "" //server setuje password
         };
 
-        user = await _authService.RegisterUserAsync(user);
+        user = await _authService.RegisterUserAsync(user, dto.Password);
 
         // Token + odgovor
         var token = _tokenService.Generate(user);

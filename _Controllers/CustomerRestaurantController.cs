@@ -1,5 +1,6 @@
 ﻿using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Service.Interfaces;
+using gozba_na_klik.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik.Controllers
@@ -23,5 +24,31 @@ namespace gozba_na_klik.Controllers
 
             return Ok(restaurants);
         }
+
+        [HttpGet("recent")]
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetMostRecentByUserAsync(int userId)
+        {
+            var restaurants = await _restaurantService.GetMostRecentByUserAsync(userId);
+
+            return Ok(restaurants);
+        }
+
+        [HttpGet("favourites")]
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetFavouriteByUserAsync(int userId)
+        {
+            var restaurants = await _restaurantService.GetFavouriteByUserAsync(userId);
+
+            return Ok(restaurants);
+        }
+
+
+        [HttpGet("top-rated")]
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetTopRatedAsync()
+        {
+            var restaurants = await _restaurantService.GetTopRatedAsync();
+
+            return Ok(restaurants);
+        }
+
     }
 }

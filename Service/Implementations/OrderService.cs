@@ -104,5 +104,15 @@ namespace gozba_na_klik.Service.Implementations
             var orders = await _orderRepo.GetPendingAsync(ct);
             return _mapper.Map<List<OrderDto>>(orders);
         }
+        public async Task<IEnumerable<OrderDto>> GetByCustomerAsync(int customerId)
+        {
+            var list = await _orderRepo.GetByCustomerAsync(customerId);
+            return _mapper.Map<IEnumerable<OrderDto>>(list);
+        }
+        public async Task<List<OrderDto>> GetPendingForOwnerAsync(int ownerId, CancellationToken ct = default)
+        {
+            var orders = await _orderRepo.GetPendingForOwnerAsync(ownerId, ct);
+            return _mapper.Map<List<OrderDto>>(orders);
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace gozba_na_klik.Service.Interfaces
         Task RejectAsync(int orderId, RejectOrderDto? dto = null); // Restoran odbija porudzbinu AZ
         Task<OrderDto?> GetByIdAsync(int id, CancellationToken ct = default);
         Task<List<OrderDto>> GetPendingAsync(CancellationToken ct = default);
-
+        Task<IEnumerable<OrderDto>> GetByCustomerAsync(int customerId);
+        Task<List<OrderDto>> GetPendingForOwnerAsync(int ownerId, CancellationToken ct = default); // Dodao sam za listu porudzbina vlasnika AZ
     }
 }

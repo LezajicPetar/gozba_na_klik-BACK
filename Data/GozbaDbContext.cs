@@ -20,7 +20,7 @@ namespace gozba_na_klik.Data
         public DbSet<UserAllergen> UserAllergens { get; set; }
         public DbSet<RestaurantWorkTime> RestaurantWorkTimes { get; set; }
         public DbSet<RestaurantExceptionDate> RestaurantExceptionDates { get; set; }
-        
+        public DbSet<Review> Reviews { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
@@ -82,6 +82,20 @@ namespace gozba_na_klik.Data
                 .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
+            #region REVIEW
+            modelBuilder.Entity<Review>()
+                .HasOne(rv => rv.Restaurant)
+                .WithMany(r => r.Reviews)
+                .HasForeignKey(rv => rv.RestaurantId)
+                .OnDelete(DeleteBehavior.Cascade);  
+
+            modelBuilder.Entity<Review>()
+                .HasOne(rv => rv.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(rv => rv.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
             modelBuilder.Entity<MenuItem>()
                 .HasOne(mi => mi.Restaurant)
                 .WithMany(r => r.Menu)
@@ -112,6 +126,13 @@ namespace gozba_na_klik.Data
                 e.HasIndex(u => new {u.Role, u.isActive, u.IsBusy })
                     .HasDatabaseName("IX_User_Role_IsActive_IsBusy");
             });
+
+            // Povezivanje zaposlenih sa restoranom AZ
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.EmployeeRestaurant)
+                .WithMany(r => r.Employees)
+                .HasForeignKey(u => u.EmployeeRestaurantId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<UserAllergen>()
                 .HasKey(ua => new { ua.UserId, ua.AllergenId });

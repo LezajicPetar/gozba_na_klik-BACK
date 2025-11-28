@@ -126,7 +126,7 @@ namespace gozba_na_klik.Service.Implementations
                 if (!TimeOnly.TryParseExact(d.End, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var e))
                     throw new BadRequestException($"Nevalidan format vremena za dan {d.DayOfWeek}: End='{d.End}' (ocekujem HH:mm).");
 
-                if (s >= e)
+                if (s > e)
                     throw new BadRequestException($"Start mora biti pre End za dan {d.DayOfWeek}.");
 
                 var daily = (e.ToTimeSpan() - s.ToTimeSpan()).TotalHours;

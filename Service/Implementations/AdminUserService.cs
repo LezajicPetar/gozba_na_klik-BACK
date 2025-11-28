@@ -35,7 +35,7 @@ namespace gozba_na_klik.Service
         public async Task<AdminUserDto> CreateAsync(CreateUserDto dto)
         {
             _logger.LogInformation("Admin creating user Email={Email} Role={Role}", dto.Email, dto.Role);
-
+            
             if (string.IsNullOrWhiteSpace(dto.Email) || !dto.Email.Contains("@"))
             {
                 _logger.LogWarning("Invalid email format: {Email}", dto.Email);
@@ -63,9 +63,23 @@ namespace gozba_na_klik.Service
 
             if (dto.Role != Role.Courier && dto.Role != Role.RestaurantOwner)
                 throw new BadRequestException("The role must be Courier or RestaurantOwner.");
+            
             var entity = _mapper.Map<User>(dto);
-           
+
+            entity.Email = dto.Email.Trim().ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(entity.Username))
+                entity.Username = entity.Email;
+
+            entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            entity.IsSuspended = false;
+            entity.isActive = true;
+            entity.IsBusy = false;
+            entity.CurrentOrderId = null;
+
             var created = await _users.CreateAsync(entity);
+
             _logger.LogInformation("Created user Id={Id}", created.Id);
 
             return _mapper.Map<AdminUserDto>(created);

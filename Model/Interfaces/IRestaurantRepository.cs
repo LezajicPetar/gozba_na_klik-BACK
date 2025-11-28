@@ -14,7 +14,7 @@ namespace gozba_na_klik.Model.Interfaces
 
         // OWNER funkcionalnosti
         Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId);
-         Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
+        Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
 
          Task<MenuItem?> UpdateMenuItemAsync(int restaurantId, MenuItem item);
 
@@ -26,5 +26,10 @@ namespace gozba_na_klik.Model.Interfaces
         Task<List<RestaurantExceptionDate>> GetExceptionsAsync(int restaurantId);
         Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex);
         Task<bool> DeleteExceptionAsync(int exceptionId);
+
+
+        Task<IEnumerable<Restaurant>> GetMostRecentByUserAsync(int userId);
+        Task<IEnumerable<Restaurant>> GetFavouritesByUserAsync(int userId);
+        Task<IEnumerable<Restaurant>> GetTopRatedAsync();
     }
 }

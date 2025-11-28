@@ -26,7 +26,12 @@ namespace gozba_na_klik.Repository
         public async Task<Order?> GetByIdAsync(int id)
         {
             return await _dbContext.Orders
+                .Include(o => o.Restaurant)
+                .Include(o => o.Customer)
+                .Include(o => o.Courier)
+                .Include(o => o.Address)
                 .Include(o => o.Items)
+                    .ThenInclude(i => i.MenuItem)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
         public async Task<Order> UpdateAsync(Order order)
@@ -40,6 +45,30 @@ namespace gozba_na_klik.Repository
             return await _dbContext.Orders
                 .Include(o => o.Items)
                 .Where(o => o.Status == OrderStatus.NA_CEKANJU)
+                .OrderBy(o => o.CreatedAt)
+                .ToListAsync(ct);
+        }
+        public async Task<IEnumerable<Order>> GetByCustomerAsync(int customerId)
+        {
+            return await _dbContext.Orders
+                .Where(o => o.CustomerId == customerId)
+                .Include(o => o.Restaurant)
+                .Include(o => o.Address)
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.MenuItem)
+                .OrderByDescending(o => o.CreatedAt) 
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        public async Task<List<Order>> GetPendingForOwnerAsync(int ownerId, CancellationToken ct = default)
+        {
+            return await _dbContext.Orders
+                .Include(o => o.Restaurant)
+                .Include(o => o.Customer)
+                .Include(o => o.Address)
+                .Where(o =>
+                    o.Status == OrderStatus.NA_CEKANJU &&
+                    o.Restaurant.OwnerId == ownerId)
                 .OrderBy(o => o.CreatedAt)
                 .ToListAsync(ct);
         }

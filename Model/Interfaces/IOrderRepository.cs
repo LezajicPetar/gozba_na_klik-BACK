@@ -8,5 +8,7 @@ namespace gozba_na_klik.Model.Interfaces
         Task<Order?> GetByIdAsync(int id);
         Task<Order> UpdateAsync(Order order); // Dodao sam UpdateAsync metodu AZ
         Task<List<Order>> GetPendingAsync(CancellationToken ct = default);
+        Task<IEnumerable<Order>> GetByCustomerAsync(int customerId);
+        Task<List<Order>> GetPendingForOwnerAsync(int ownerId, CancellationToken ct = default); // Dodao sam za listu porudzbina AZ
     }
 }

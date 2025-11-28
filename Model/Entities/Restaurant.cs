@@ -17,6 +17,10 @@ namespace gozba_na_klik.Model.Entities
         public User? Owner { get; set; }
         public int OwnerId { get; set; }
 
+        // Dodao sam listu employees AZ
+        public ICollection<User> Employees { get; set; } = new List<User>();
+
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<RestaurantWorkTime>? WorkTimes { get; set; } = new List<RestaurantWorkTime>();
         public ICollection<RestaurantExceptionDate>? ExceptionDates { get; set; } = new List<RestaurantExceptionDate>();
     }
