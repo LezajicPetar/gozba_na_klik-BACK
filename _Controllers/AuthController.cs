@@ -186,9 +186,15 @@ public class AuthController : ControllerBase
     [HttpPost("reset/request")]
     public async Task<IActionResult> RequestReset([FromBody] ResetRequestDto dto)
     {
-        await _authService.RequestPasswordResetAsync(dto.Email);
-        return Ok(new { message = "If the account exists, reset email was sent." });
+        var token = await _authService.RequestPasswordResetAndReturnToken(dto.Email);
+
+        return Ok(new
+        {
+            message = "If the account exists, reset email was sent.",
+            token
+        });
     }
+
 
     [HttpPost("reset/confirm")]
     public async Task<IActionResult> ConfirmReset([FromBody] ResetConfirmDto dto)

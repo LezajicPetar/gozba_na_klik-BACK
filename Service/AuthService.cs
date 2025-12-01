@@ -33,27 +33,39 @@ namespace gozba_na_klik.Service
         public async Task<UserDto?> LoginAsync(LoginDto dto)
         {
             var email = (dto.Email ?? "").Trim().ToLowerInvariant();
+            _logger.LogWarning("LOGIN STEP 1 → email normalized = " + email);
             var user = await _userRepo.GetByEmailAsync(email);
 
             if (user == null)
+            {
+                _logger.LogWarning("LOGIN FAIL → user not found in DB");
                 return null;
+            }
 
+            _logger.LogWarning($"LOGIN STEP 2 → user found: Id={user.Id}, IsActive={user.IsActive}");
             if (!user.IsActive)
             {
-                _logger.LogWarning("Login attempt for inactive user {UserId}.", user.Id);
+                _logger.LogWarning("LOGIN FAIL → user inactive");
                 return null;
             }
 
             var isValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
+            _logger.LogWarning($"LOGIN STEP 3 → password match = {isValid}");
+
             if (!isValid)
+            {
+                _logger.LogWarning("LOGIN FAIL → WRONG PASSWORD");
                 return null;
-
-            _logger.LogInformation("User {UserId} logged in.", user.Id);
-
+            }
+            _logger.LogWarning("LOGIN OK → return userDto");
             return _mapper.Map<UserDto>(user);
         }
         public Task<User?> GetByEmailAsync(string email)
-            => _userRepo.GetByEmailAsync(email);
+        {
+            var normalized = (email ?? "").Trim().ToLowerInvariant();
+            return _userRepo.GetByEmailAsync(normalized);
+        }
+
         public async Task<User?> RegisterUserAsync(User u, string rawPassword)
         {
             u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(rawPassword);
@@ -68,7 +80,7 @@ namespace gozba_na_klik.Service
 
             var frontendUrl = _config["FrontendUrl"] ?? "http://localhost:5173";
 
-            var activationLink = $"{frontendUrl}/activate?Token={activationToken.TokenHash}";
+            var activationLink = $"{frontendUrl}/activate?token={activationToken.TokenHash}";
 
             await _emailService.SendActivationEmailAsync(user.Email, activationLink);
 
@@ -134,6 +146,23 @@ namespace gozba_na_klik.Service
             await _userRepo.SaveChangesAsync();
 
             _logger.LogInformation("User {UserId} successfully reset password.", user.Id);
+        }
+
+        public async Task<string?> RequestPasswordResetAndReturnToken(string email)
+        {
+            var normalizedEmail = (email ?? "").Trim().ToLowerInvariant();
+            var user = await _userRepo.GetByEmailAsync(normalizedEmail);
+
+            if (user == null || !user.IsActive)
+                return null;
+
+            var resetToken = await _tokenService.CreateResetPasswordToken(user.Id);
+
+            var frontendUrl = _config["FrontendUrl"] ?? "http://localhost:5173";
+            var resetLink = $"{frontendUrl}/reset-password?token={resetToken.TokenHash}";
+            await _emailService.SendResetEmailAsync(user.Email, resetLink);
+
+            return resetToken.TokenHash;
         }
 
 

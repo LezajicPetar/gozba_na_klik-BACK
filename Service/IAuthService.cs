@@ -16,7 +16,9 @@ namespace gozba_na_klik.Service
         Task RequestPasswordResetAsync(string email);
 
         Task ResetPasswordAsync(string rawToken, string newPassword);
-         
+
+        Task<string?> RequestPasswordResetAndReturnToken(string email);
+
     }
 }
 
