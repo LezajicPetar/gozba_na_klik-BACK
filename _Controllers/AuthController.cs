@@ -174,4 +174,28 @@ public class AuthController : ControllerBase
         return Ok(new { token = tokenString });
     }
 
+    // Aktiviranje i resetovanje naloga
+
+    [HttpGet("activate")]
+    public async Task<IActionResult> Activate([FromQuery] string token)
+    {
+        await _authService.ActivateAsync(token);
+        return Ok(new {message = "Account activated. You can now log in."});
+    }
+
+    [HttpPost("reset/request")]
+    public async Task<IActionResult> RequestReset([FromBody] ResetRequestDto dto)
+    {
+        await _authService.RequestPasswordResetAsync(dto.Email);
+        return Ok(new { message = "If the account exists, reset email was sent." });
+    }
+
+    [HttpPost("reset/confirm")]
+    public async Task<IActionResult> ConfirmReset([FromBody] ResetConfirmDto dto)
+    {
+        await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
+        return Ok(new { message = "Password has been reset. You can now log in." });
+    }
+
+
 }
