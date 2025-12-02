@@ -10,6 +10,15 @@ namespace gozba_na_klik.Service
         Task<User?> GetByEmailAsync(string email);
         Task<User?> RegisterUserAsync(User user, string rawPassword);
         Task LogoutAsync();
+
+        Task ActivateAsync(string tokenRaw);
+
+        Task RequestPasswordResetAsync(string email);
+
+        Task ResetPasswordAsync(string rawToken, string newPassword);
+
+        Task<string?> RequestPasswordResetAndReturnToken(string email);
+
     }
 }
 

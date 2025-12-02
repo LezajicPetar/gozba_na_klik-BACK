@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gozba_na_klik.Data;
@@ -11,9 +12,11 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    partial class GozbaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129081316_AddUserTokenAndIsActive")]
+    partial class AddUserTokenAndIsActive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,9 +159,6 @@ namespace gozba_na_klik.Migrations
 
                     b.Property<int?>("CourierId")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
@@ -308,39 +308,6 @@ namespace gozba_na_klik.Migrations
                     b.HasIndex("RestaurantId");
 
                     b.ToTable("RestaurantWorkTimes");
-                });
-
-            modelBuilder.Entity("gozba_na_klik.Model.Review", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RestaurantId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("gozba_na_klik.Model.User", b =>
@@ -568,25 +535,6 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("Restaurant");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.Review", b =>
-                {
-                    b.HasOne("gozba_na_klik.Model.Restaurant", "Restaurant")
-                        .WithMany("Reviews")
-                        .HasForeignKey("RestaurantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("gozba_na_klik.Model.User", "User")
-                        .WithMany("Reviews")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Restaurant");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("gozba_na_klik.Model.UserAllergen", b =>
                 {
                     b.HasOne("gozba_na_klik.Model.Allergen", "Allergen")
@@ -642,8 +590,6 @@ namespace gozba_na_klik.Migrations
                 {
                     b.Navigation("ExceptionDates");
 
-                    b.Navigation("Reviews");
-
                     b.Navigation("Menu");
 
                     b.Navigation("WorkTimes");
@@ -654,8 +600,6 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("Addresses");
 
                     b.Navigation("Restaurants");
-
-                    b.Navigation("Reviews");
 
                     b.Navigation("UserAllergens");
 
