@@ -4,6 +4,7 @@ using gozba_na_klik.Middlewear;
 using gozba_na_klik.Model;
 using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
+using gozba_na_klik.Service.External;
 using gozba_na_klik.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
@@ -73,6 +74,9 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
+            builder.Services.AddScoped<UserTokenService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<UserTokenRepository>();
 
             //Vukasin
             builder.Services.AddScoped<RestaurantRepository>();
