@@ -14,6 +14,7 @@
         public User? Owner { get; set; }
         public int OwnerId { get; set; }
 
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<RestaurantWorkTime>? WorkTimes { get; set; } = new List<RestaurantWorkTime>();
         public ICollection<RestaurantExceptionDate>? ExceptionDates { get; set; } = new List<RestaurantExceptionDate>();
     }

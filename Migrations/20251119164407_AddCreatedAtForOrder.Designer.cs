@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gozba_na_klik.Data;
@@ -11,9 +12,11 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    partial class GozbaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251119164407_AddCreatedAtForOrder")]
+    partial class AddCreatedAtForOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,9 +364,6 @@ namespace gozba_na_klik.Migrations
                         .HasMaxLength(35)
                         .HasColumnType("character varying(35)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(35)
@@ -391,6 +391,38 @@ namespace gozba_na_klik.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin1@gozba.com",
+                            FirstName = "Admin",
+                            LastName = "One",
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "admin2@gozba.com",
+                            FirstName = "Admin",
+                            LastName = "Two",
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "admin3@gozba.com",
+                            FirstName = "Admin",
+                            LastName = "Three",
+                            PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
+                            Role = "Admin",
+                            Username = "Admin3"
+                        });
                 });
 
             modelBuilder.Entity("gozba_na_klik.Model.UserAllergen", b =>
@@ -406,40 +438,6 @@ namespace gozba_na_klik.Migrations
                     b.HasIndex("AllergenId");
 
                     b.ToTable("UserAllergens");
-                });
-
-            modelBuilder.Entity("gozba_na_klik.Model.UserToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UsedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("gozba_na_klik.Model.WorkTime", b =>
@@ -606,17 +604,6 @@ namespace gozba_na_klik.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("gozba_na_klik.Model.UserToken", b =>
-                {
-                    b.HasOne("gozba_na_klik.Model.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("gozba_na_klik.Model.WorkTime", b =>
                 {
                     b.HasOne("gozba_na_klik.Model.User", "User")
@@ -642,9 +629,9 @@ namespace gozba_na_klik.Migrations
                 {
                     b.Navigation("ExceptionDates");
 
-                    b.Navigation("Reviews");
-
                     b.Navigation("Menu");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("WorkTimes");
                 });

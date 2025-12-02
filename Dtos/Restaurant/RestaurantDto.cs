@@ -11,6 +11,8 @@ namespace gozba_na_klik.Dtos.Restaurants
         public int OwnerId { get; set; }
         public string OwnerName { get; set; } = string.Empty;
         public IEnumerable<MenuItemDto>? Menu { get; set; }
+        public double Rating { get; set; }
+        public string Description { get; set; } = string.Empty;
 
     }
 }

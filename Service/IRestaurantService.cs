@@ -11,5 +11,10 @@ namespace gozba_na_klik.Service
          Task<UpdateMenuItemDto> UpdateMenuItemAsync(int restorauntId, UpdateMenuItemDto item);
          Task<IEnumerable<RestaurantDto>> GetAllAsync();
 
+
+        Task<IEnumerable<RestaurantDto>> GetMostRecentByUserAsync(int userId);
+        Task<IEnumerable<RestaurantDto>> GetFavouriteByUserAsync(int userId);
+        Task<IEnumerable<RestaurantDto>> GetTopRatedAsync();
+
     }
 }

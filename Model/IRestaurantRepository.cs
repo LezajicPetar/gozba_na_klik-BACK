@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using gozba_na_klik.Dtos.Restaurants;
-
-namespace gozba_na_klik.Model
+﻿namespace gozba_na_klik.Model
 {
     public interface IRestaurantRepository : IRepository<Restaurant>
     {
@@ -13,9 +8,9 @@ namespace gozba_na_klik.Model
 
         // OWNER funkcionalnosti
         Task<IEnumerable<Restaurant>> GetAllByOwnerAsync(int ownerId);
-         Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
+        Task<bool> DeleteMenuItemAsync(int restaurantId, int menuItemId);
 
-         Task<MenuItem> UpdateMenuItemAsync(int restaurantId, MenuItem item);
+        Task<MenuItem> UpdateMenuItemAsync(int restaurantId, MenuItem item);
 
         // Radno vreme
         Task<List<RestaurantWorkTime>> GetWorkTimesAsync(int restaurantId);
@@ -25,5 +20,10 @@ namespace gozba_na_klik.Model
         Task<List<RestaurantExceptionDate>> GetExceptionsAsync(int restaurantId);
         Task<RestaurantExceptionDate> AddExceptionAsync(RestaurantExceptionDate ex);
         Task<bool> DeleteExceptionAsync(int exceptionId);
+
+
+        Task<IEnumerable<Restaurant>> GetMostRecentByUserAsync(int userId);
+        Task<IEnumerable<Restaurant>> GetFavouritesByUserAsync(int userId);
+        Task<IEnumerable<Restaurant>> GetTopRatedAsync();
     }
 }
