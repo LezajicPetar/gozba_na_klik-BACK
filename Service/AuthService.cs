@@ -45,9 +45,15 @@ namespace gozba_na_klik.Service
             _logger.LogWarning($"LOGIN STEP 2 → user found: Id={user.Id}, IsActive={user.IsActive}");
             if (!user.IsActive)
             {
-                _logger.LogWarning("LOGIN FAIL → user inactive");
+                var activationToken = await _tokenService.CreateActivationToken(user.Id);
+
+                var frontendUrl = _config["FrontendUrl"] ?? "http://localhost:5173";
+                var activationLink = $"{frontendUrl}/activate?token={activationToken.TokenHash}";
+                await _emailService.SendActivationEmailAsync(user.Email, activationLink);
+
                 return null;
             }
+
 
             var isValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
             _logger.LogWarning($"LOGIN STEP 3 → password match = {isValid}");
