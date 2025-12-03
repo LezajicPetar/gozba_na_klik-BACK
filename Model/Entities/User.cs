@@ -22,6 +22,8 @@ namespace gozba_na_klik.Model.Entities
 
         public string? ProfilePicture { get; set; }
 
+        public bool IsActive { get; set; } = false;
+
         public ICollection<Address>? Addresses { get; set; }
         public ICollection<UserAllergen> UserAllergens { get; set; } = new List<UserAllergen>();
         public ICollection<WorkTime>? WorkTimes { get; set; }

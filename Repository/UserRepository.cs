@@ -99,6 +99,12 @@ namespace gozba_na_klik.Repository
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+
         #endregion
     }
 }

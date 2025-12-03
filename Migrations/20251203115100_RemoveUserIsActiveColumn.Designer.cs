@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gozba_na_klik.Data;
@@ -11,9 +12,11 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    partial class GozbaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251203115100_RemoveUserIsActiveColumn")]
+    partial class RemoveUserIsActiveColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -367,9 +370,6 @@ namespace gozba_na_klik.Migrations
                         .HasMaxLength(35)
                         .HasColumnType("character varying(35)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsBusy")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -424,7 +424,6 @@ namespace gozba_na_klik.Migrations
                             Id = 1,
                             Email = "admin1@gozba.com",
                             FirstName = "Admin",
-                            IsActive = false,
                             IsBusy = false,
                             IsSuspended = false,
                             LastName = "One",
@@ -438,7 +437,6 @@ namespace gozba_na_klik.Migrations
                             Id = 2,
                             Email = "admin2@gozba.com",
                             FirstName = "Admin",
-                            IsActive = false,
                             IsBusy = false,
                             IsSuspended = false,
                             LastName = "Two",
@@ -452,7 +450,6 @@ namespace gozba_na_klik.Migrations
                             Id = 3,
                             Email = "admin3@gozba.com",
                             FirstName = "Admin",
-                            IsActive = false,
                             IsBusy = false,
                             IsSuspended = false,
                             LastName = "Three",

@@ -14,7 +14,11 @@ namespace gozba_na_klik.Repository
 
         public async Task<IEnumerable<Restaurant>> GetAllAsync()
         {
-            return await _db.Restaurants.Include(r => r.Menu).ToListAsync();
+            return await _db.Restaurants
+                .Include(r => r.Menu)
+                .Include(r => r.Owner)
+                .Include(r => r.Reviews)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync()

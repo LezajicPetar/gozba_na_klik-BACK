@@ -12,8 +12,8 @@ using gozba_na_klik.Data;
 namespace gozba_na_klik.Migrations
 {
     [DbContext(typeof(GozbaDbContext))]
-    [Migration("20251124202805_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251203203525_AddUserIsActive")]
+    partial class AddUserIsActive
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -370,6 +370,9 @@ namespace gozba_na_klik.Migrations
                         .HasMaxLength(35)
                         .HasColumnType("character varying(35)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsBusy")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -424,6 +427,7 @@ namespace gozba_na_klik.Migrations
                             Id = 1,
                             Email = "admin1@gozba.com",
                             FirstName = "Admin",
+                            IsActive = false,
                             IsBusy = false,
                             IsSuspended = false,
                             LastName = "One",
@@ -437,6 +441,7 @@ namespace gozba_na_klik.Migrations
                             Id = 2,
                             Email = "admin2@gozba.com",
                             FirstName = "Admin",
+                            IsActive = false,
                             IsBusy = false,
                             IsSuspended = false,
                             LastName = "Two",
@@ -450,6 +455,7 @@ namespace gozba_na_klik.Migrations
                             Id = 3,
                             Email = "admin3@gozba.com",
                             FirstName = "Admin",
+                            IsActive = false,
                             IsBusy = false,
                             IsSuspended = false,
                             LastName = "Three",
@@ -473,6 +479,40 @@ namespace gozba_na_klik.Migrations
                     b.HasIndex("AllergenId");
 
                     b.ToTable("UserAllergens");
+                });
+
+            modelBuilder.Entity("gozba_na_klik.Model.Entities.UserToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("gozba_na_klik.Model.Entities.WorkTime", b =>
@@ -658,6 +698,17 @@ namespace gozba_na_klik.Migrations
                         .IsRequired();
 
                     b.Navigation("Allergen");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("gozba_na_klik.Model.Entities.UserToken", b =>
+                {
+                    b.HasOne("gozba_na_klik.Model.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

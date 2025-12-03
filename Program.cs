@@ -3,8 +3,7 @@ using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
 using gozba_na_klik.Model.Interfaces;
 using gozba_na_klik.Repository;
-using gozba_na_klik.Service.External;
-using gozba_na_klik.Service.Implementations;
+using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +14,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using gozba_na_klik.Model.Entities;
 using gozba_na_klik.Service.Interfaces;
-using gozba_na_klik.Service;
 using gozba_na_klik.DtosAdmin;
+using gozba_na_klik.Service.External;
+using gozba_na_klik.Service.Implementations;
 
 namespace gozba_na_klik
 {
@@ -77,6 +77,9 @@ namespace gozba_na_klik
             builder.Services.AddScoped<AllergenRepository>();
             builder.Services.AddScoped<UserAllergenRepository>();
             builder.Services.AddScoped<UserAllergenService>();
+            builder.Services.AddScoped<UserTokenService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<UserTokenRepository>();
 
             //Vukasin
             builder.Services.AddScoped<RestaurantRepository>();

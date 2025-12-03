@@ -181,6 +181,7 @@ namespace gozba_na_klik.Migrations
                     IsBusy = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     CurrentOrderId = table.Column<int>(type: "integer", nullable: true),
                     ProfilePicture = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     EmployeeRestaurantId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -248,6 +249,30 @@ namespace gozba_na_klik.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserTokens",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    TokenHash = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UsedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserTokens_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WorkTimes",
                 columns: table => new
                 {
@@ -287,12 +312,12 @@ namespace gozba_na_klik.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "CurrentOrderId", "Email", "EmployeeRestaurantId", "FirstName", "LastName", "PasswordHash", "ProfilePicture", "Role", "Username", "isActive" },
+                columns: new[] { "Id", "CurrentOrderId", "Email", "EmployeeRestaurantId", "FirstName", "IsActive", "LastName", "PasswordHash", "ProfilePicture", "Role", "Username", "isActive" },
                 values: new object[,]
                 {
-                    { 1, null, "admin1@gozba.com", null, "Admin", "One", "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2", null, "Admin", "Admin1", true },
-                    { 2, null, "admin2@gozba.com", null, "Admin", "Two", "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2", null, "Admin", "Admin2", true },
-                    { 3, null, "admin3@gozba.com", null, "Admin", "Three", "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2", null, "Admin", "Admin3", true }
+                    { 1, null, "admin1@gozba.com", null, "Admin", false, "One", "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2", null, "Admin", "Admin1", true },
+                    { 2, null, "admin2@gozba.com", null, "Admin", false, "Two", "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2", null, "Admin", "Admin2", true },
+                    { 3, null, "admin3@gozba.com", null, "Admin", false, "Three", "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2", null, "Admin", "Admin3", true }
                 });
 
             migrationBuilder.CreateIndex(
@@ -380,6 +405,11 @@ namespace gozba_na_klik.Migrations
                 name: "IX_Users_EmployeeRestaurantId",
                 table: "Users",
                 column: "EmployeeRestaurantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTokens_UserId",
+                table: "UserTokens",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkTimes_UserId_DayOfWeek",
@@ -473,6 +503,9 @@ namespace gozba_na_klik.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserAllergens");
+
+            migrationBuilder.DropTable(
+                name: "UserTokens");
 
             migrationBuilder.DropTable(
                 name: "WorkTimes");
