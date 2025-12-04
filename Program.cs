@@ -78,6 +78,10 @@ namespace gozba_na_klik
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<UserTokenRepository>();
 
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+
             //Vukasin
             builder.Services.AddScoped<RestaurantRepository>();
             builder.Services.AddScoped<Repository.RestaurantRepository>();
@@ -106,20 +110,14 @@ namespace gozba_na_klik
             // AutoMapper profili
             builder.Services.AddAutoMapper(cfg =>
             {
-                // Admin koristi Mapping.RestaurantProfile
                 cfg.AddProfile<RestaurantProfile>();
-
-                // Owner koristi Dtos.Profiles.RestaurantProfile
-                cfg.AddProfile<Dtos.Profiles.RestaurantProfile>();
-
-                // Korisnici
                 cfg.AddProfile<UserProfile>();
-                cfg.AddProfile<RestaurantProfile>(); //PRIMER ZA DODAVANJE PROFILA
                 cfg.AddProfile<MenuItemProfile>();
                 cfg.AddProfile<OrderProfile>();
-                cfg.AddProfile<UserProfile>();
                 cfg.AddProfile<ReviewProfile>();
+                cfg.AddProfile<EmployeeProfile>();
             });
+
 
 
             var logger = new LoggerConfiguration()

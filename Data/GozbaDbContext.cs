@@ -24,8 +24,8 @@ namespace gozba_na_klik.Data
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
-
         public DbSet<UserToken> UserTokens { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
