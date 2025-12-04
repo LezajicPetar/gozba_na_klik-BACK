@@ -1,4 +1,4 @@
-﻿using gozba_na_klik.Services;
+﻿using gozba_na_klik.Service.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik.Controllers

@@ -1,11 +1,9 @@
 using gozba_na_klik.Data;
 using gozba_na_klik.Mapping;
 using gozba_na_klik.Middlewear;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Interfaces;
 using gozba_na_klik.Repository;
 using gozba_na_klik.Service;
-using gozba_na_klik.Service.External;
-using gozba_na_klik.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +12,11 @@ using Serilog;
 using Serilog.Filters;
 using System.Text;
 using System.Text.Json.Serialization;
+using gozba_na_klik.Model.Entities;
+using gozba_na_klik.Service.Interfaces;
+using gozba_na_klik.DtosAdmin;
+using gozba_na_klik.Service.External;
+using gozba_na_klik.Service.Implementations;
 
 namespace gozba_na_klik
 {
@@ -97,11 +100,17 @@ namespace gozba_na_klik
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
 
+            builder.Services.AddScoped<IEmployeeOrderService, EmployeeOrderService>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
 
             // Servisi po ulogama
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
             builder.Services.AddScoped<IAdminRestaurantService, AdminRestaurantService>();
             builder.Services.AddScoped<IOwnerRestaurantService, OwnerRestaurantService>();
+
+            // Poziv na automatsku dodelu porudzbina kuririma
+            builder.Services.AddHostedService<AutoAssignOrdersService>();
 
             // AutoMapper profili
             builder.Services.AddAutoMapper(cfg =>
@@ -170,6 +179,9 @@ namespace gozba_na_klik
             {
                 o.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
             });
+
+            builder.Services.AddScoped<gozba_na_klik.Model.Interfaces.ICourierRepository, gozba_na_klik.Repository.CourierRepository>();
+            builder.Services.AddScoped<gozba_na_klik.Service.Interfaces.ICourierService, gozba_na_klik.Service.Implementations.CourierService>();
 
             var app = builder.Build();
 

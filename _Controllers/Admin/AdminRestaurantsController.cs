@@ -1,5 +1,6 @@
 ﻿using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Service;
+using gozba_na_klik.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

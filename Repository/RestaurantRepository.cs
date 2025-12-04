@@ -1,5 +1,7 @@
 ﻿using gozba_na_klik.Data;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using gozba_na_klik.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 

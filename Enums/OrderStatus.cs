@@ -1,12 +1,13 @@
 ﻿namespace gozba_na_klik.Enums
 {
+    // Status porudzbine AZ
     public enum OrderStatus
     {
-        NaCekanju,
-        Prihvacena,
-        PreuzimanjeUToku,
-        DostavaUToku,
-        Zavrseno,
-        Otkazana
+        NA_CEKANJU,
+        OTKAZANA,
+        PRIHVACENA,
+        PREUZIMANJE_U_TOKU,
+        DOSTAVA_U_TOKU,
+        ZAVRSENA
     }
 }

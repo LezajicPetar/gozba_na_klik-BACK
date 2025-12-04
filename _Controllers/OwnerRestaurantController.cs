@@ -1,7 +1,7 @@
 ﻿using gozba_na_klik.Dtos.MenuItems;
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Model;
-using gozba_na_klik.Service;
+using gozba_na_klik.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik.Controllers.OwnerArea

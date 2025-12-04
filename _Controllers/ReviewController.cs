@@ -1,5 +1,5 @@
 ﻿using gozba_na_klik.Dtos.Review;
-using gozba_na_klik.Service;
+using gozba_na_klik.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik._Controllers

@@ -2,6 +2,7 @@
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Model;
 using System.Net.Sockets;
+using gozba_na_klik.Model.Entities;
 
 namespace gozba_na_klik.Mapping
 {

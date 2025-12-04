@@ -3,6 +3,7 @@ using gozba_na_klik.Dtos.Users;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Dtos;
 using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 
 namespace gozba_na_klik.Mapping
 {

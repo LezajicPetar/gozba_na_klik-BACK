@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using gozba_na_klik.Dtos.Restaurants;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 
 namespace gozba_na_klik.Dtos.Profiles
 {
