@@ -12,6 +12,9 @@ namespace gozba_na_klik.Repository
 
         public RestaurantRepository(GozbaDbContext db) => _db = db;
 
+
+        public IQueryable<Restaurant> Query() => _db.Restaurants.AsQueryable();
+
         public async Task<IEnumerable<Restaurant>> GetAllAsync()
         {
             return await _db.Restaurants.Include(r => r.Menu).ToListAsync();
@@ -147,6 +150,7 @@ namespace gozba_na_klik.Repository
             var restaurants = await _db.Restaurants
                 .Where(r => restaurantIds.Contains(r.Id))
                 .Include(r => r.Reviews)
+                .Include(r => r.Menu)
                 .ToListAsync();
 
             return restaurants
@@ -174,6 +178,7 @@ namespace gozba_na_klik.Repository
             var restaurants = await _db.Restaurants
                 .Where(r => restaurantIds.Contains(r.Id))
                 .Include(r => r.Reviews)
+                .Include(r => r.Menu)
                 .ToListAsync();
 
             return restaurants
@@ -200,6 +205,7 @@ namespace gozba_na_klik.Repository
             var restaurants = await _db.Restaurants
                 .Where(r => topRestaurantIds.Contains(r.Id))
                 .Include(r => r.Reviews)
+                .Include(r => r.Menu)
                 .ToListAsync();
 
             return restaurants

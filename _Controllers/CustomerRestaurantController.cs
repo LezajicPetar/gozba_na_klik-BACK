@@ -1,4 +1,5 @@
-﻿using gozba_na_klik.Dtos.Restaurants;
+﻿using gozba_na_klik.Dtos.Queries;
+using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Model;
 using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,14 @@ namespace gozba_na_klik.Controllers
             return Ok(restaurants);
         }
 
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedRestaurantsAsync([FromQuery] RestaurantQuery query)
+        {
+            var result = await _restaurantService.GetPagedRestaurantsAsync(query);
+
+            return Ok(result);
+        }
+
         [HttpGet("recent")]
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetMostRecentByUserAsync(int userId)
         {
@@ -32,7 +41,6 @@ namespace gozba_na_klik.Controllers
 
             return Ok(restaurants);
         }
-
         [HttpGet("favourites")]
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetFavouriteByUserAsync(int userId)
         {
@@ -40,8 +48,6 @@ namespace gozba_na_klik.Controllers
 
             return Ok(restaurants);
         }
-
-
         [HttpGet("top-rated")]
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetTopRatedAsync()
         {

@@ -2,6 +2,8 @@
 {
     public interface IRestaurantRepository : IRepository<Restaurant>
     {
+        IQueryable<Restaurant> Query();
+
         // ADMIN funkcionalnosti
         Task<Restaurant?> GetByIdWithOwnerAsync(int id);
         Task<IEnumerable<Restaurant>> GetAllWithOwnersAsync();

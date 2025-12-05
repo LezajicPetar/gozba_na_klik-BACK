@@ -1,9 +1,14 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using gozba_na_klik.Dtos.MenuItems;
+using gozba_na_klik.Dtos.Pagination;
+using gozba_na_klik.Dtos.Queries;
 using gozba_na_klik.Dtos.Restaurants;
 using gozba_na_klik.Exceptions;
+using gozba_na_klik.Extensions;
 using gozba_na_klik.Model;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace gozba_na_klik.Service
 {
@@ -46,6 +51,8 @@ namespace gozba_na_klik.Service
 
             return _mapper.Map<RestaurantDto>(restaurant);
         }
+
+
         public async Task DeleteMenuItemAsync(int restaurantId, int menuItemId)
         {
             _logger.LogInformation("Deleting menu item {MenuItemId} for restaurant {RestaurantId}", menuItemId, restaurantId);
@@ -98,7 +105,25 @@ namespace gozba_na_klik.Service
         }
 
 
+        public async Task<PagedResult<RestaurantDto>> GetPagedRestaurantsAsync(RestaurantQuery query)
+        {
+            var baseQuery = _restaurantRepo.Query();
 
+            baseQuery = baseQuery.ApplyFiltering(query);
+
+            var sortMap = new Dictionary<string, Expression<Func<Restaurant, object>>>
+            {
+                ["name"] = r => r.Name,
+                ["owner"] = r => r.OwnerId,
+                ["capacity"] = r => r.Capacity
+            };
+
+            baseQuery = baseQuery.ApplySorting(query.SortBy, query.SortDir, sortMap);
+
+            var projected = baseQuery.ProjectTo<RestaurantDto>(_mapper.ConfigurationProvider);
+
+            return await projected.ToPagedResultAsync(query.Page, query.PageSize);
+        }
 
         private async Task<Restaurant> EnsureRestaurantExistsAsync(int id)
         {
