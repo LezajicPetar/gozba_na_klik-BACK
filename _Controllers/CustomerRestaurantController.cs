@@ -1,6 +1,6 @@
 ﻿using gozba_na_klik.Dtos.Restaurants;
+using gozba_na_klik.Service.Interfaces;
 using gozba_na_klik.Model;
-using gozba_na_klik.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik.Controllers

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using gozba_na_klik.Model;
 using gozba_na_klik.Dtos.Employee;
+using gozba_na_klik.Model.Entities;
 
 namespace gozba_na_klik.Mapping
 {
@@ -8,16 +8,18 @@ namespace gozba_na_klik.Mapping
     {
         public EmployeeProfile()
         {
-            CreateMap<Employee, EmployeeDto>();
+            CreateMap<EmployeeMenagement, EmployeeDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
-            CreateMap<EmployeeCreateDto, Employee>()
+
+            CreateMap<EmployeeCreateDto, EmployeeMenagement>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.RestaurantId, opt => opt.Ignore())
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email.Trim().ToLower()));
 
-            CreateMap<EmployeeUpdateDto, Employee>()
+            CreateMap<EmployeeUpdateDto, EmployeeMenagement>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.RestaurantId, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())

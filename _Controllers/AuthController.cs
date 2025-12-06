@@ -6,12 +6,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using gozba_na_klik.Dtos;
 using gozba_na_klik.DtosAdmin;
-using gozba_na_klik.Model;
-using gozba_na_klik.Service;
-using gozba_na_klik.Services;
+using gozba_na_klik.Model.Entities;
+using gozba_na_klik.Service.External;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using gozba_na_klik.Service.Interfaces;
 
 
 
@@ -28,7 +28,7 @@ public class AuthController : ControllerBase
     private const int MaxPasswordLen = 128;
     private const int MaxNameLen = 35;
     private const int MaxEmailLen = 255;
-    private const int MaxUsernameLen = 12;
+    private const int MaxUsernameLen = 30;
 
     // jednostavni regex-i
     private static readonly Regex _rxDigit = new("\\d", RegexOptions.Compiled);

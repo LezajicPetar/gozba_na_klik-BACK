@@ -1,6 +1,7 @@
 ﻿using gozba_na_klik.Dtos.Users;
 using gozba_na_klik.DtosAdmin;
 using gozba_na_klik.Service;
+using gozba_na_klik.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

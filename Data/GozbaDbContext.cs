@@ -1,5 +1,5 @@
 ﻿using gozba_na_klik.Enums;
-using gozba_na_klik.Model;
+using gozba_na_klik.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -25,7 +25,8 @@ namespace gozba_na_klik.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
-        public DbSet<Employee> Employees { get; set; }
+        public DbSet<EmployeeMenagement> EmployeeMenagements { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -118,7 +119,23 @@ namespace gozba_na_klik.Data
                     .IsRequired();
 
                 e.Property(u => u.PasswordHash).IsRequired();
+                e.Property(u => u.IsSuspended).HasDefaultValue(false).IsRequired();
+
+                // NOVO Statusi kurira AZ
+                e.Property(u => u.IsActive).HasDefaultValue(true).IsRequired();
+                e.Property(u => u.IsBusy).HasDefaultValue(false).IsRequired();
+                e.Property(u => u.CurrentOrderId).IsRequired(false);
+
+                e.HasIndex(u => new {u.Role, u.IsActive, u.IsBusy })
+                    .HasDatabaseName("IX_User_Role_IsActive_IsBusy");
             });
+
+            // Povezivanje zaposlenih sa restoranom AZ
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.EmployeeRestaurant)
+                .WithMany(r => r.Employees)
+                .HasForeignKey(u => u.EmployeeRestaurantId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<UserAllergen>()
                 .HasKey(ua => new { ua.UserId, ua.AllergenId });
@@ -151,11 +168,26 @@ namespace gozba_na_klik.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            modelBuilder.Entity<WorkTime>()
-                .HasOne(u => u.User)
-                .WithMany(w => w.WorkTimes)
-                .HasForeignKey(w => w.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<WorkTime>(e =>
+            {
+                e.HasKey(w => w.Id);
+
+                e.Property(w => w.DayOfWeek).IsRequired();
+
+                e.Property(w => w.Start).HasColumnType("time without time zone");
+                e.Property(w => w.End).HasColumnType("time without time zone");
+
+                e.HasOne(w => w.User)
+                    .WithMany(u => u.WorkTimes)
+                    .HasForeignKey(w => w.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(w => new { w.UserId, w.DayOfWeek }).IsUnique();
+
+                // Postgres sintaksa (bez []):
+                e.ToTable("WorkTimes", tb =>
+                    tb.HasCheckConstraint("CK_WorkTimes_DayOfWeek_Range", "\"DayOfWeek\" >= 0 AND \"DayOfWeek\" <= 6"));
+            });
 
             //potencijalno treba povezati adresu sa restoranom
             modelBuilder.Entity<Address>()
@@ -181,37 +213,37 @@ namespace gozba_na_klik.Data
 
 
             #region SEED DATA
-            //modelBuilder.Entity<User>().HasData(
-            //    new User
-            //    {
-            //        Id = 1,
-            //        FirstName = "Admin",
-            //        LastName = "One",
-            //        Username = "Admin1",
-            //        Email = "admin1@gozba.com",
-            //        PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
-            //        Role = Role.Admin
-            //    },
-            //    new User
-            //    {
-            //        Id = 2,
-            //        FirstName = "Admin",
-            //        LastName = "Two",
-            //        Username = "Admin2",
-            //        Email = "admin2@gozba.com",
-            //        PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
-            //        Role = Role.Admin
-            //    },
-            //    new User
-            //    {
-            //        Id = 3,
-            //        FirstName = "Admin",
-            //        LastName = "Three",
-            //        Username = "Admin3",
-            //        Email = "admin3@gozba.com",
-            //        PasswordHash = "$2a$11$VdTkF.NE1aw8uZmfFO51OuxlW9qrvbx7W8g3iKw6aHcuC1vHfMJt6\r\n",
-            //        Role = Role.Admin
-            //    });
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    FirstName = "Admin",
+                    LastName = "One",
+                    Username = "Admin1",
+                    Email = "admin1@gozba.com",
+                    PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
+                    Role = Role.Admin
+                },
+                new User
+                {
+                    Id = 2,
+                    FirstName = "Admin",
+                    LastName = "Two",
+                    Username = "Admin2",
+                    Email = "admin2@gozba.com",
+                    PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
+                    Role = Role.Admin
+                },
+                new User
+                {
+                    Id = 3,
+                    FirstName = "Admin",
+                    LastName = "Three",
+                    Username = "Admin3",
+                    Email = "admin3@gozba.com",
+                    PasswordHash = "$2a$12$97Po1ExL9B3PTNSyDYBlmetfcdxQNuLWdRQ06l.A8eC0pJ9s6Zee2",
+                    Role = Role.Admin
+                });
 
             modelBuilder.Entity<Allergen>().HasData(
                 new Allergen { Id = 1, Name = "Gluten" },
